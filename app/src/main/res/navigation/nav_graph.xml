@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <fragment
+        android:id="@+id/profile"
+        android:name="com.example.a1pr_jetpackcompose.RecipeList"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_profile_to_recipelist"
+            app:destination="@id/recipe_list" />
+    </fragment>
+    <fragment
+        android:id="@+id/recipe_list"
+        android:name="com.example.a1pr_jetpackcompose.RecipeList"
+        android:label="Recipe List"
+        tools:layout="@layout/fragment_recipe_list" />
+</navigation>
