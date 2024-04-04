@@ -15,6 +15,8 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,6 +27,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.a1pr_jetpackcompose.MVVM.Recipe
 import com.example.a1pr_jetpackcompose.MVVM.RecipeViewModel
@@ -47,7 +50,7 @@ class RecipeList : ComponentActivity() {
 }
 
 @Composable
-fun RecipeList(navController: NavController) {
+fun RecipeList(navController: NavController, viewModel: RecipeViewModel = viewModel()) {
     val recipeList = listOf(
         Recipe(
             id = 1,
@@ -76,7 +79,7 @@ fun RecipeList(navController: NavController) {
     )
     LazyColumn {
         items(recipeList) { recipe ->
-            RecipeCard(recipe, navController)
+            RecipeCard(recipe, navController, viewModel)
         }
     }
 }
@@ -84,8 +87,11 @@ fun RecipeList(navController: NavController) {
 
 
 @Composable
-fun RecipeCard(recipe: Recipe, navController: NavController) {
+fun RecipeCard(recipe: Recipe, navController: NavController,  viewModel: RecipeViewModel) {
 
+//    val viewModel : RecipeViewModel = viewModel()
+    val recipeEntity = viewModel.allTasks.collectAsState(emptyList()).value.find { it.recipeId == recipe.id }
+    val isFavorite = recipeEntity?.isFavorite ?: false
 //    val isFavorite = viewModel.favoriteRecipes.collectAsState(emptyList()).value.any { it.recipeId == recipe.id }
 
     Card(
@@ -168,32 +174,32 @@ fun RecipeCard(recipe: Recipe, navController: NavController) {
                     )
                 }
 
-/*               IconButton(onClick = {
-                   if (isFavorite) {
-                       viewModel.deleteFavoriteRecipe(recipe.id)
-                   } else {
-                       viewModel.insertFavoriteRecipe(recipe) // Pass the Recipe object
-                   }
-               }) {
-                   Icon(
-                       imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                       contentDescription = "Favorite"
-                   )
-               }*/
+                IconButton(onClick = { viewModel.toggleFavorite(recipe.id) }) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Favorite"
+                    )
+                }
+//                   if (isFavorite) {
+//                       viewModel.deleteFavoriteRecipe(recipe.id)
+//                   } else {
+//                       viewModel.insertFavoriteRecipe(recipe) // Pass the Recipe object
+//                   }
+//               }) {
+//                   Icon(
+//                       imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+//                       contentDescription = "Favorite"
+//                   )
+               }
             }
         }
     }
 
-    fun GoToRecipe(
-        id: Int,
-        name: String,
-        difficulty: String,
-        tags: String,
-        rating: Float,
-        image: String
-    ) {
-
-
-    }
-
-}
+//    fun GoToRecipe(
+//        id: Int,
+//        name: String,
+//        difficulty: String,
+//        tags: String,
+//        rating: Float,
+//        image: String
+//    )

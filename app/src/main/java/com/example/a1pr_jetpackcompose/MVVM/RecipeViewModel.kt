@@ -1,32 +1,25 @@
 package com.example.a1pr_jetpackcompose.MVVM
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 // RecipeViewModel.kt
-class RecipeViewModel(private val repository: RecipeRepository) : ViewModel() {
-    private val _favoriteRecipes = MutableStateFlow<List<RecipeEntity>>(emptyList())
-    val favoriteRecipes: StateFlow<List<RecipeEntity>> = _favoriteRecipes
+
+class RecipeViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository: RecipeRepository
+    val allTasks: kotlinx.coroutines.flow.Flow<List<RecipeEntity>>
+
     init {
-        viewModelScope.launch {
-            repository.getAllFavoriteRecipes().collect {
-                _favoriteRecipes.value = it
-            }
-        }
+        val taskDao = RecipeDatabase.getDatabase(application).recipeDao()
+        repository = RecipeRepository(taskDao)
+        allTasks = repository.allTasks
     }
 
-    fun insertFavoriteRecipe(recipe: Recipe) {
-        viewModelScope.launch {
-        val recipeEntity = RecipeEntity(
-            recipeId = recipe.id,
-            name = recipe.name,
-            difficulty = recipe.difficulty,
-            tags = recipe.tags.joinToString(",") // Assuming tags are a list of strings
-        );repository.insertFavoriteRecipe(recipeEntity)
-        }
+    fun insertFavoriteRecipe(fav: RecipeEntity) = viewModelScope.launch {
+        repository.insertFavoriteRecipe(fav)
     }
 
     fun deleteFavoriteRecipe(recipeId: Int) {
@@ -34,6 +27,14 @@ class RecipeViewModel(private val repository: RecipeRepository) : ViewModel() {
             repository.deleteFavoriteRecipe(recipeId)
         }
     }
-
-
+    fun toggleFavorite(recipeId: Int) {
+        viewModelScope.launch {
+            val recipe = repository.allTasks.first().find { it.recipeId == recipeId }
+            if (recipe != null) {
+                repository.updateFavoriteStatus(recipeId, !recipe.isFavorite)
+            } else {
+                // Handle the case where the recipe is not found in the database
+            }
+        }
+    }
 }

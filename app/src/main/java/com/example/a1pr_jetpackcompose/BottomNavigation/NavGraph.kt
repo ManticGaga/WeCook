@@ -7,7 +7,6 @@ import androidx.navigation.compose.composable
 import com.example.a1pr_jetpackcompose.AddRecipeScreen
 import com.example.a1pr_jetpackcompose.RecipeList
 import com.example.a1pr_jetpackcompose.FavouritesScreen
-import com.example.a1pr_jetpackcompose.MVVM.RecipeViewModel
 import com.example.a1pr_jetpackcompose.ui.theme.RecipeDetails
 
 

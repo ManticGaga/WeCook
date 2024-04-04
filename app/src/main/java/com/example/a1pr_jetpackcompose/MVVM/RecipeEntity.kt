@@ -11,4 +11,5 @@ data class RecipeEntity(
     val name: String,
     val difficulty: Int,
     val tags: String,
+    var isFavorite: Boolean = false // Add this line
 )

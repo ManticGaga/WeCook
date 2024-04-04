@@ -4,12 +4,14 @@ import kotlinx.coroutines.flow.Flow
 
 // RecipeRepository.kt
 class RecipeRepository(private val recipeDao: RecipeDao) {
+    val allTasks: Flow<List<RecipeEntity>> = recipeDao.getAllFavorite()
+
     suspend fun insertFavoriteRecipe(recipeEntity: RecipeEntity) {
+        recipeEntity.isFavorite = true // Set isFavorite to true
         recipeDao.insertFavoriteRecipe(recipeEntity)
     }
-
-    fun getAllFavoriteRecipes(): Flow<List<RecipeEntity>> {
-        return recipeDao.getAllFavoriteRecipes()
+    suspend fun updateFavoriteStatus(recipeId: Int, isFavorite: Boolean) {
+        recipeDao.updateFavoriteStatus(recipeId, isFavorite)
     }
 
     suspend fun deleteFavoriteRecipe(recipeId: Int) {
