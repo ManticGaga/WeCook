@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 class RecipeViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: RecipeRepository
     val allTasks: kotlinx.coroutines.flow.Flow<List<RecipeEntity>>
+
     init {
         val taskDao = RecipeDatabase.getDatabase(application).recipeDao()
         repository = RecipeRepository(taskDao)
