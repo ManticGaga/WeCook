@@ -1,6 +1,7 @@
 package com.example.a1pr_jetpackcompose.MVVM
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 // RecipeRepository.kt
 class RecipeRepository(private val recipeDao: RecipeDao) {
@@ -16,5 +17,10 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
 
     suspend fun deleteFavoriteRecipe(recipeId: Int) {
         recipeDao.deleteFavoriteRecipe(recipeId)
+    }
+    fun getFavoriteRecipes(): Flow<List<RecipeEntity>> {
+        return recipeDao.getAllFavorite().map { recipes ->
+            recipes.filter { it.isFavorite }
+        }
     }
 }

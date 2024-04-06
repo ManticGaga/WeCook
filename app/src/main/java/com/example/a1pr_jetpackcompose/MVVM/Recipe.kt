@@ -7,8 +7,8 @@ import androidx.compose.ui.graphics.painter.Painter
 data class Recipe(
     val id: Int = 0,
     val name: String,
-    val difficulty: Int, // Consider using an enum for difficulty levels
+    val difficulty: Int,
     val tags: List<String>,
     val rating: Float,
-    val image: Painter // Consider using ImageBitmap or ImageVector for better performance
+    val image: String
 )

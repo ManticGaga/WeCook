@@ -1,4 +1,4 @@
-package com.example.a1pr_jetpackcompose.ui.theme
+package com.example.a1pr_jetpackcompose
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 

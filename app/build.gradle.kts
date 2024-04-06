@@ -9,6 +9,9 @@ android {
     compileSdk = 34
 
     defaultConfig {
+//        annotationProcessorOptions{
+//            arguments += ["room.schemaLocation":"$projectDir/schemas".toString()]
+//        }
         applicationId = "com.example.a1pr_jetpackcompose"
         minSdk = 24
         targetSdk = 33
