@@ -3,6 +3,7 @@ package com.example.a1pr_jetpackcompose.MVVM
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.a1pr_jetpackcompose.Retrofit.recipeList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -15,8 +16,9 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         repository = RecipeRepository(taskDao)
         allTasks = repository.allTasks
     }
-    fun insertFavoriteRecipe(recipe: Recipe) {
+    fun insertFavoriteRecipe(recipeId: Int) {
         viewModelScope.launch {
+            val recipe = recipeList.find { it.id == recipeId } ?: return@launch
             val recipeEntity = RecipeEntity(
                 recipeId = recipe.id,
                 name = recipe.name,
@@ -25,6 +27,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                 image = recipe.image
             )
             repository.insertFavoriteRecipe(recipeEntity)
+
         }
     }
     fun deleteFavoriteRecipe(recipeId: Int) {
@@ -32,14 +35,19 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             repository.deleteFavoriteRecipe(recipeId)
         }
     }
-    val favoriteRecipes: Flow<List<RecipeEntity>> = repository.getFavoriteRecipes()
+//    val favoriteRecipes: Flow<List<RecipeEntity>> = repository.getFavoriteRecipes()
     fun toggleFavorite(recipeId: Int) {
         viewModelScope.launch {
             val recipeEntity = repository.allTasks.first().find { it.recipeId == recipeId }
             if (recipeEntity != null) {
-                val newIsFavorite = !recipeEntity.isFavorite
-                repository.updateFavoriteStatus(recipeId, newIsFavorite)
-            } else {
+                if (recipeEntity.isFavorite) {
+                    repository.deleteFavoriteRecipe(recipeId)
+                } else {
+                    insertFavoriteRecipe(recipeId)
+                }
+            }
+            else {
+                insertFavoriteRecipe(recipeId)
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.example.a1pr_jetpackcompose
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -59,6 +60,7 @@ fun RecipeCard_Fav(recipe: RecipeEntity, navController: NavController, viewModel
 
     val recipeEntity = viewModel.allTasks.collectAsState(emptyList()).value.find { it.recipeId == recipe.id }
     val isFavorite = recipeEntity?.isFavorite ?: false
+    val context = LocalContext.current
 
     Card(
         modifier = Modifier
@@ -80,7 +82,7 @@ fun RecipeCard_Fav(recipe: RecipeEntity, navController: NavController, viewModel
                     .clip(RoundedCornerShape(4.dp))
             )
             {
-                RecipeImage_fav(recipe.image)
+                RecipeImage_fav(recipe.image, context)
             }
             Text(
                 text = recipe.name,
@@ -114,7 +116,6 @@ fun RecipeCard_Fav(recipe: RecipeEntity, navController: NavController, viewModel
                             .size(20.dp)
                             .padding(start = 4.dp)
                     )
-
                 }
             }
             Row(
@@ -136,11 +137,11 @@ fun RecipeCard_Fav(recipe: RecipeEntity, navController: NavController, viewModel
                     )
                 }
 
-                IconButton(onClick = { viewModel.toggleFavorite(recipe.id) }) {
+                IconButton(onClick = { viewModel.deleteFavoriteRecipe(recipe.id) }) {
                     Icon(
-                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                        imageVector = Icons.Filled.Favorite,
                         contentDescription = "Favorite",
-                        tint = if (isFavorite) Color.Red else Color.Gray // Optional: Change color based on favorite status
+                        tint = if (isFavorite) Color.Red else Color.Gray
                     )
                 }
             }
@@ -148,7 +149,7 @@ fun RecipeCard_Fav(recipe: RecipeEntity, navController: NavController, viewModel
     }
 }
 @Composable
-fun RecipeImage_fav(imageName: String) {
+fun RecipeImage_fav(imageName: String, context: Context) {
     val context = LocalContext.current
     val imageResource = context.resources.getIdentifier(imageName, "drawable", context.packageName)
     Image(

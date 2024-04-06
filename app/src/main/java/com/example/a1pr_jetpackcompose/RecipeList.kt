@@ -33,6 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.a1pr_jetpackcompose.MVVM.Recipe
 import com.example.a1pr_jetpackcompose.MVVM.RecipeViewModel
+import com.example.a1pr_jetpackcompose.Retrofit.recipeList
 import com.example.a1pr_jetpackcompose.ui.theme._1pr_jetpackcomposeTheme
 
 class RecipeList : ComponentActivity() {
@@ -53,32 +54,6 @@ class RecipeList : ComponentActivity() {
 
 @Composable
 fun RecipeList(navController: NavController, viewModel: RecipeViewModel = viewModel()) {
-    val recipeList = listOf(
-        Recipe(
-            id = 1,
-            name = "Салат Цезарь",
-            difficulty = 2,
-            tags = listOf("Салаты", "Здоровье", "Легкие"),
-            rating = 4.0f,
-            image = "grecheskiy_salat" // Уникальное изображение для каждого рецепта)
-        ),
-        Recipe(
-            id = 2,
-            name = "Паста с грибами",
-            difficulty = 4,
-            tags = listOf("Паста", "Грибы", "Вегетарианское"),
-            rating = 5.0f,
-            image = "pasta_s_gribami" // Уникальное изображение для каждого рецепта
-        ),
-        Recipe(
-            id = 3,
-            name = "Яичница",
-            difficulty = 1,
-            tags = listOf("Завтрак", "Легкие"),
-            rating = 5.0f,
-            image = "yaichinca" // Уникальное изображение для каждого рецепта
-        ),
-    )
     LazyColumn {
         items(recipeList) { recipe ->
             RecipeCard(recipe, navController, viewModel)
@@ -147,7 +122,6 @@ fun RecipeCard(recipe: Recipe, navController: NavController,  viewModel: RecipeV
                             .size(20.dp)
                             .padding(start = 4.dp)
                     )
-
                 }
             }
             Row(
@@ -169,11 +143,15 @@ fun RecipeCard(recipe: Recipe, navController: NavController,  viewModel: RecipeV
                     )
                 }
 
-                IconButton(onClick = { viewModel.toggleFavorite(recipe.id) }) {
+                IconButton(onClick = {
+                    viewModel.toggleFavorite(recipe.id)
+
+                }
+                ) {
                     Icon(
                         imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                         contentDescription = "Favorite",
-                        tint = if (isFavorite) Color.Red else Color.Gray // Optional: Change color based on favorite status
+                        tint = if (isFavorite) Color.Red else Color.Gray
                     )
                 }
                }

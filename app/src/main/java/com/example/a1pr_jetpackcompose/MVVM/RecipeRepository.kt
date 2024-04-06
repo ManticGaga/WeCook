@@ -11,9 +11,9 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
         recipeEntity.isFavorite = true // Set isFavorite to true
         recipeDao.insertFavoriteRecipe(recipeEntity)
     }
-    suspend fun updateFavoriteStatus(recipeId: Int, isFavorite: Boolean) {
-        recipeDao.updateFavoriteStatus(recipeId, isFavorite)
-    }
+//    suspend fun updateFavoriteStatus(recipeId: Int, isFavorite: Boolean) {
+//        recipeDao.updateFavoriteStatus(recipeId, isFavorite)
+//    }
 
     suspend fun deleteFavoriteRecipe(recipeId: Int) {
         recipeDao.deleteFavoriteRecipe(recipeId)
