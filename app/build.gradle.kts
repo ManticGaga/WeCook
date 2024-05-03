@@ -9,9 +9,6 @@ android {
     compileSdk = 34
 
     defaultConfig {
-//        annotationProcessorOptions{
-//            arguments += ["room.schemaLocation":"$projectDir/schemas".toString()]
-//        }
         applicationId = "com.example.a1pr_jetpackcompose"
         minSdk = 24
         targetSdk = 33
@@ -56,6 +53,8 @@ android {
 dependencies {
     implementation("androidx.compose.material:material:1.4.2")
     implementation("androidx.core:core-ktx:1.9.0")
+    implementation("androidx.compose.foundation:foundation-android:1.6.7")
+    implementation("androidx.compose.ui:ui-graphics-desktop:1.6.7")
     kapt("androidx.room:room-compiler:2.6.0")
     implementation ("androidx.navigation:navigation-compose:2.6.0-alpha04")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
