@@ -1,6 +1,6 @@
 package com.example.a1pr_jetpackcompose.MVVM
 
-// Recipe.kt
+
 data class Recipe(
     val id: Int = 0,
     val author: String,

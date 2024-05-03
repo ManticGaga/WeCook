@@ -4,7 +4,7 @@ import com.example.a1pr_jetpackcompose.MVVM.Recipe
 
 val recipeList = listOf(
     Recipe(
-        id = 1,
+        id = 0,
         author = "Максим",
         name = "Салат Цезарь",
         difficulty = 2,
@@ -17,7 +17,7 @@ val recipeList = listOf(
         receiptdetails_info = listOf (0,90,60,0)
     ),
     Recipe(
-        id = 2,
+        id = 1,
         author = "Максим",
         name = "Паста с грибами",
         difficulty = 4,
@@ -30,7 +30,7 @@ val recipeList = listOf(
         receiptdetails_info = listOf (0,90,60,0)
     ),
     Recipe(
-        id = 3,
+        id = 2,
         author = "Максим",
         name = "Яичница",
         difficulty = 1,

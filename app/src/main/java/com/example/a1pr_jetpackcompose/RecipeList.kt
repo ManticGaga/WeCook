@@ -74,7 +74,7 @@ fun RecipeCard(recipe: Recipe, navController: NavController,  viewModel: RecipeV
             .fillMaxWidth()
             .padding(16.dp)
             .clickable {
-                navController.navigate("RecipeDetails?id=${recipe.id}")
+                navController.navigate("RecipeDetails/${recipe.id}")
             }
     ) {
         Column(

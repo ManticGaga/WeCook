@@ -35,7 +35,10 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             repository.deleteFavoriteRecipe(recipeId)
         }
     }
-//    val favoriteRecipes: Flow<List<RecipeEntity>> = repository.getFavoriteRecipes()
+    fun getRecipeDetails(recipeId: Int): Recipe? {
+        return recipeList.find { it.id == recipeId }
+    }
+        //    val favoriteRecipes: Flow<List<RecipeEntity>> = repository.getFavoriteRecipes()
     fun toggleFavorite(recipeId: Int) {
         viewModelScope.launch {
             val recipeEntity = repository.allTasks.first().find { it.recipeId == recipeId }
