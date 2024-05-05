@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "384272196756",
+    "project_id": "recipes-d0560",
+    "storage_bucket": "recipes-d0560.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:384272196756:android:4c4557bf1f4a4919728081",
+        "android_client_info": {
+          "package_name": "com.example.a1pr_jetpackcompose"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWYM4xey-3sny60xP8aPfQLPTSOH3PDtY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
