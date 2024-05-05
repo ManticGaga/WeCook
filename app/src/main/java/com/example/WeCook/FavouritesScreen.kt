@@ -32,6 +32,7 @@ import androidx.navigation.NavController
 import com.example.WeCook.MVVM.RecipeEntity
 import com.example.WeCook.MVVM.RecipeViewModel
 import com.example.WeCook.ui.theme.NormalTextComponent
+import com.example.a1pr_jetpackcompose.R
 
 @Composable
 fun FavouritesScreen(navController: NavController, viewModel: RecipeViewModel = viewModel()) {

@@ -1,6 +1,7 @@
 package com.example.WeCook.BottomNavigation
 
-import com.example.WeCook.R
+import com.example.a1pr_jetpackcompose.R
+
 
 sealed class BottomItem(val title: String, val iconId: Int, val route: String) {
     object RecipeList : BottomItem("Recipes", R.drawable.baseline_manage_accounts_24, "RecipeList")
