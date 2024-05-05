@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "1pr_jetpackcompose"
+rootProject.name = "WeCook"
 include(":app")
  
