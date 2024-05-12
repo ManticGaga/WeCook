@@ -52,8 +52,8 @@ fun RecipeDetails(viewModel: RecipeViewModel, recipeId: Int) {
         Box {
             // StepImage(recipe!!.receiptdetails_image[currentStep])
             val imageName = recipe!!.receiptdetails_image[currentStep]
-            TODO("Лучше всего, если фотографии нет, будет добавлять фотографию предыдущего изображения.")
-            TODO("Пока фото не появится.")
+            //("Лучше всего, если фотографии нет, будет добавлять фотографию предыдущего изображения.")
+            //("Пока фото не появится.")
             if (imageName == "Пусто") {
                 Text(
                     text = "Пусто",
