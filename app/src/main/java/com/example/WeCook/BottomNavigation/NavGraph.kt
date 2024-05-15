@@ -8,16 +8,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.WeCook.AddRecipeScreen
-import com.example.WeCook.RecipeList
 import com.example.WeCook.FavouritesScreen
 import com.example.WeCook.RecipeDetails
-
+import com.example.WeCook.RecipeList
 
 @Composable
-fun NavGraph( navHostController: NavHostController) {
-    NavHost(navController = navHostController, startDestination = "Add") {
+fun NavGraph(navHostController: NavHostController) {
+    NavHost(navController = navHostController, startDestination = "sign_in") {
         composable("RecipeList") {
-            RecipeList(navHostController) // Pass viewModel to RecipeList
+            RecipeList(navHostController)
         }
         composable("Add") {
             AddRecipeScreen()

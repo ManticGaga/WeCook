@@ -11,7 +11,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -32,7 +36,7 @@ import androidx.navigation.NavController
 import com.example.WeCook.MVVM.RecipeEntity
 import com.example.WeCook.MVVM.RecipeViewModel
 import com.example.WeCook.ui.theme.NormalTextComponent
-import com.example.a1pr_jetpackcompose.R
+import com.example.WeCook.R
 
 @Composable
 fun FavouritesScreen(navController: NavController, viewModel: RecipeViewModel = viewModel()) {

@@ -1,26 +1,36 @@
 {
   "project_info": {
-    "project_number": "384272196756",
-    "project_id": "recipes-d0560",
-    "storage_bucket": "recipes-d0560.appspot.com"
+    "project_number": "741977271689",
+    "project_id": "wecook-cc61f",
+    "storage_bucket": "wecook-cc61f.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:384272196756:android:4c4557bf1f4a4919728081",
+        "mobilesdk_app_id": "1:741977271689:android:258a2ebdf72e8184f40558",
         "android_client_info": {
-          "package_name": "com.example.a1pr_jetpackcompose"
+          "package_name": "com.example.WeCook"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "741977271689-oojf0h8grsr7g9biqo7iam945e8c5rof.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyAWYM4xey-3sny60xP8aPfQLPTSOH3PDtY"
+          "current_key": "AIzaSyBY7JIOqYCOAHbHSIJFoPS4vlkpCVmr0YY"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "741977271689-oojf0h8grsr7g9biqo7iam945e8c5rof.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

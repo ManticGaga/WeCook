@@ -12,7 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.a1pr_jetpackcompose.R
+import com.example.WeCook.R
 
 @Composable
 fun NormalTextComponent(value: String) {

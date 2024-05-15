@@ -3,7 +3,7 @@ package com.example.WeCook.Firebase
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
-import com.example.a1pr_jetpackcompose.R
+import com.example.WeCook.R
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.firebase.auth.GoogleAuthProvider

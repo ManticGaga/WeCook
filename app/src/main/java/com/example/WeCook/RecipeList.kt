@@ -9,10 +9,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -31,14 +36,13 @@ import androidx.navigation.NavController
 import com.example.WeCook.MVVM.Recipe
 import com.example.WeCook.MVVM.RecipeViewModel
 import com.example.WeCook.Retrofit.recipeList
-import com.example.WeCook.ui.theme._1pr_jetpackcomposeTheme
-import com.example.a1pr_jetpackcompose.R
+import com.example.WeCook.ui.theme._WeCookTheme
 
 class RecipeList : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            _1pr_jetpackcomposeTheme {
+            _WeCookTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

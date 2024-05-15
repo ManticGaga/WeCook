@@ -1,6 +1,6 @@
 package com.example.WeCook.BottomNavigation
 
-import com.example.a1pr_jetpackcompose.R
+import com.example.WeCook.R
 
 
 sealed class BottomItem(val title: String, val iconId: Int, val route: String) {
