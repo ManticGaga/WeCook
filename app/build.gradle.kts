@@ -53,7 +53,8 @@ android {
 dependencies {
     // Removed older Material dependencies
     // implementation("androidx.compose.material:material:1.4.2")
-
+    implementation("io.coil-kt:coil-compose:2.4.0") // Or latest version
+    implementation("com.google.android.gms:play-services-auth:20.6.0") // Or latest version
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.compose.foundation:foundation-android:1.6.7")
     implementation("com.google.firebase:firebase-auth-ktx:23.0.0")

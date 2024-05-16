@@ -14,7 +14,7 @@ import com.example.WeCook.RecipeList
 
 @Composable
 fun NavGraph(navHostController: NavHostController) {
-    NavHost(navController = navHostController, startDestination = "sign_in") {
+    NavHost(navController = navHostController, startDestination = "Add") {
         composable("RecipeList") {
             RecipeList(navHostController)
         }

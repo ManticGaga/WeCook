@@ -3,11 +3,13 @@ package com.example.WeCook
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -19,8 +21,13 @@ import com.example.WeCook.Firebase.UserData
 @Composable
 fun ProfileScreen(
     userData: UserData?,
-    onSignOut: () -> Unit
+    onSignOut: () -> Unit,
+    onClose: () -> Unit
 ) {
+    Surface( // Add a Surface to apply a background
+        color = Color.White, // Set your desired background color here
+        modifier = Modifier.fillMaxSize()
+    ) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -48,6 +55,7 @@ fun ProfileScreen(
         }
         Button(onClick = onSignOut) {
             Text(text = "Sign out")
+        }
         }
     }
 }

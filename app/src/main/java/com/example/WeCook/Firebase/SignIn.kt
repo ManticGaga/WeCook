@@ -1,5 +1,6 @@
 package com.example.WeCook.Firebase
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -22,6 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.WeCook.BottomNavigation.MainActivity
 import com.example.WeCook.ProfileScreen
 import com.example.WeCook.ui.theme._WeCookTheme
 import com.google.android.gms.auth.api.identity.Identity
@@ -45,21 +47,21 @@ class SignIn : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val viewModel = viewModel<SignInViewModel>()
+                    val state by viewModel.state.collectAsStateWithLifecycle(
+                        lifecycleOwner = LocalLifecycleOwner.current
+                    )
                     val navController = rememberNavController()
                     NavHost(navController = navController, startDestination = "sign_in") {
                         composable("sign_in") {
-                            // Access LifecycleOwner within composable
-                            val lifecycleOwner = LocalLifecycleOwner.current
-                            val state by viewModel.state.collectAsStateWithLifecycle(lifecycleOwner)
                             LaunchedEffect(key1 = Unit) {
-                                if (googleAuthUiClient.getSignedInUser() != null) {
+                                if(googleAuthUiClient.getSignedInUser() != null) {
                                     navController.navigate("profile")
                                 }
                             }
                             val launcher = rememberLauncherForActivityResult(
                                 contract = ActivityResultContracts.StartIntentSenderForResult(),
                                 onResult = { result ->
-                                    if (result.resultCode == RESULT_OK) {
+                                    if(result.resultCode == RESULT_OK) {
                                         lifecycleScope.launch {
                                             val signInResult = googleAuthUiClient.signInWithIntent(
                                                 intent = result.data ?: return@launch
@@ -71,12 +73,8 @@ class SignIn : ComponentActivity() {
                             )
                             LaunchedEffect(key1 = state.isSignInSuccessful) {
                                 if (state.isSignInSuccessful) {
-                                    Toast.makeText(
-                                        applicationContext,
-                                        "Sign in successful",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                    navController.navigate("profile")
+                                    startActivity(Intent(this@SignIn, MainActivity::class.java))
+                                    finish() // Optional: Close SignIn activity
                                     viewModel.resetState()
                                 }
                             }
@@ -107,7 +105,8 @@ class SignIn : ComponentActivity() {
                                         ).show()
                                         navController.popBackStack()
                                     }
-                                }
+                                },
+                                onClose = { } // Pass an empty lambda function here
                             )
                         }
                     }
