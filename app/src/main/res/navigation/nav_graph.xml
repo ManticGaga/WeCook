@@ -5,7 +5,7 @@
 
     <fragment
         android:id="@+id/profile"
-        android:name="com.example.WeCook.RecipeList"
+        android:name="com.example.WeCook.Presenter.RecipeList"
         android:label="Profile"
         tools:layout="@layout/fragment_profile">
         <action
@@ -14,7 +14,7 @@
     </fragment>
     <fragment
         android:id="@+id/recipe_list"
-        android:name="com.example.WeCook.RecipeList"
+        android:name="com.example.WeCook.Presenter.RecipeList"
         android:label="Recipe List"
         tools:layout="@layout/fragment_recipe_list" />
 </navigation>

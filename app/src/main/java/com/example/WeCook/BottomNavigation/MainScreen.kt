@@ -2,9 +2,7 @@ package com.example.WeCook.BottomNavigation
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.example.WeCook.Data.Firebase.GoogleAuthUiClient
-import com.example.WeCook.ProfileScreen
+import com.example.WeCook.Presenter.ProfileScreen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,11 +46,15 @@ fun MainScreen(googleAuthUiClient: GoogleAuthUiClient, onSignOut: () -> Unit) {
                 }
             )
         },
+
         bottomBar = { BottomNavigation(navController = navController) }
         )
-        {
-        NavGraph(navHostController = navController)
-
+        { innerPadding ->
+        Column(modifier = Modifier.padding(innerPadding)) {
+            NavGraph(
+                navHostController = navController,
+                googleAuthUiClient = googleAuthUiClient
+            )
         if (showProfile.value) {
             ProfileScreen(
                 userData = googleAuthUiClient.getSignedInUser(),
@@ -67,4 +69,5 @@ fun MainScreen(googleAuthUiClient: GoogleAuthUiClient, onSignOut: () -> Unit) {
             )
         }
     }
+  }
 }

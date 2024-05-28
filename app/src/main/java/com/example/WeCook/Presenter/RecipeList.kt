@@ -1,22 +1,16 @@
-package com.example.WeCook
+package com.example.WeCook.Presenter
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -24,8 +18,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -44,10 +36,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.WeCook.Data.MVVM.Recipe
 import com.example.WeCook.Data.MVVM.RecipeViewModel
+import com.example.WeCook.R
 import com.example.WeCook.ui.theme._WeCookTheme
 
 
-class RecipeListFav : ComponentActivity() {
+class RecipeList : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -56,7 +49,7 @@ class RecipeListFav : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    RecipeListFav()
+                    RecipeList()
                 }
             }
         }
@@ -64,27 +57,19 @@ class RecipeListFav : ComponentActivity() {
 }
 
 @Composable
-fun FavoritesScreen(navController: NavController, viewModel: RecipeViewModel = viewModel()) {
-    val favoriteRecipes by viewModel.favoriteRecipes.collectAsState(initial = emptyList())
+fun RecipeList(navController: NavController, viewModel: RecipeViewModel = viewModel()) {
+    val firestoreRecipes by viewModel.firestoreRecipes.collectAsState()
 
-    if (favoriteRecipes.isEmpty()) {
-        Text("There are no favorite recipes. Yet :)")
-    } else {
-        LazyColumn {
-            items(favoriteRecipes) { favoriteRecipe ->
-                val recipe = viewModel.getRecipeDetails(favoriteRecipe.id)
-                if (recipe != null) {
-                    RecipeCardFav(recipe, navController, viewModel)
-                }
-            }
+    LazyColumn {
+        items(firestoreRecipes) { recipe ->
+            RecipeCard(recipe, navController, viewModel)
         }
     }
 }
 
 
 @Composable
-fun RecipeCardFav(recipe: Recipe, navController: NavController, viewModel: RecipeViewModel) {
-
+fun RecipeCard(recipe: Recipe, navController: NavController, viewModel: RecipeViewModel) {
     val recipeEntity = viewModel.allTasks.collectAsState(emptyList()).value.find { it.id == recipe.id }
     val isFavorite = recipeEntity?.isFavorite ?: false
 
@@ -107,7 +92,7 @@ fun RecipeCardFav(recipe: Recipe, navController: NavController, viewModel: Recip
                     .height(200.dp)
                     .clip(RoundedCornerShape(4.dp))
             ) {
-                RecipeImageFav(recipe.image)
+                RecipeImage(recipe.image)
             }
             Text(
                 text = recipe.name,
@@ -144,8 +129,7 @@ fun RecipeCardFav(recipe: Recipe, navController: NavController, viewModel: Recip
                 }
             }
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = "Тэги:",
@@ -162,11 +146,8 @@ fun RecipeCardFav(recipe: Recipe, navController: NavController, viewModel: Recip
                     )
                 }
 
-                IconButton(onClick = {
-                    Log.d("RecipeCard", "Toggling favorite for recipe ID: ${recipe.id}")
-                    viewModel.toggleFavorite(recipe.id)
-
-                }
+                IconButton(
+                    onClick = { viewModel.toggleFavorite(recipe.id) }
                 ) {
                     Icon(
                         imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
@@ -179,7 +160,7 @@ fun RecipeCardFav(recipe: Recipe, navController: NavController, viewModel: Recip
     }
 }
 @Composable
-fun RecipeImageFav(imageName: String) {
+fun RecipeImage(imageName: String) {
     val context = LocalContext.current
     val imageResource = context.resources.getIdentifier(imageName, "drawable", context.packageName)
     Image(

@@ -1,24 +1,18 @@
 package com.example.WeCook.BottomNavigation
 
-import androidx.compose.runtime.*
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,10 +24,8 @@ import coil.compose.AsyncImage
 import com.example.WeCook.Data.Firebase.GoogleAuthUiClient
 import com.example.WeCook.Data.Firebase.SignIn
 import com.example.WeCook.Data.Firebase.UserData
-import com.example.WeCook.ProfileScreen
 import com.example.WeCook.ui.theme._WeCookTheme
 import com.google.android.gms.auth.api.identity.Identity
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private lateinit var googleAuthUiClient: GoogleAuthUiClient

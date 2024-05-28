@@ -23,7 +23,6 @@ abstract class RecipeDatabase : RoomDatabase() {
                     "recipe_database"
                 )
                     .fallbackToDestructiveMigration()
-                    .allowMainThreadQueries()
                     .build()
                 INSTANCE = instance
                 instance
