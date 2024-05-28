@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,6 +35,8 @@ import com.example.WeCook.Data.MVVM.RecipeViewModel
 fun RecipeDetails(viewModel: RecipeViewModel, recipeId: String) {
     val recipe = viewModel.getRecipeDetails(recipeId)
     var currentStep by remember { mutableStateOf(0) }
+    var showRatingDialog by remember { mutableStateOf(false) }
+    var userRating by remember { mutableStateOf(5) } // Default rating
     if (recipe != null) {
         fun nextStep() {
             if (currentStep < recipe!!.stepstotal - 1) {
@@ -113,6 +117,44 @@ fun RecipeDetails(viewModel: RecipeViewModel, recipeId: String) {
                     enabled = currentStep > 0
                 ) {
                     Text("Back")
+                }
+                if (currentStep == recipe.stepstotal - 1) {
+                    Button(
+                        onClick = { showRatingDialog = true },
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text("Rate this Recipe")
+                    }
+                }
+                if (showRatingDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showRatingDialog = false },
+                        title = { Text("Rate the Recipe") },
+                        text = {
+                            Column {
+                                Slider(
+                                    value = userRating.toFloat(),
+                                    onValueChange = { userRating = it.toInt() },
+                                    valueRange = 1f..10f, // Rating from 1 to 10
+                                    steps = 9,
+                                )
+                                Text("Your Rating: $userRating")
+                            }
+                        },
+                        confirmButton = {
+                            Button(onClick = {
+                                viewModel.updateRating(recipeId, userRating)
+                                showRatingDialog = false
+                            }) {
+                                Text("Submit Rating")
+                            }
+                        },
+                        dismissButton = {
+                            Button(onClick = { showRatingDialog = false }) {
+                                Text("Cancel")
+                            }
+                        }
+                    )
                 }
                 Button(
                     onClick = { nextStep() },

@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -67,7 +69,6 @@ fun RecipeList(navController: NavController, viewModel: RecipeViewModel = viewMo
     }
 }
 
-
 @Composable
 fun RecipeCard(recipe: Recipe, navController: NavController, viewModel: RecipeViewModel) {
     val recipeEntity = viewModel.allTasks.collectAsState(emptyList()).value.find { it.id == recipe.id }
@@ -93,18 +94,68 @@ fun RecipeCard(recipe: Recipe, navController: NavController, viewModel: RecipeVi
                     .clip(RoundedCornerShape(4.dp))
             ) {
                 RecipeImage(recipe.image)
+                IconButton(
+                    onClick = { viewModel.toggleFavorite(recipe.id) },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp) // Add padding for spacing
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Favorite",
+                        tint = if (isFavorite) Color.Red else Color.Gray
+                    )
+                }
             }
-            Text(
-                text = recipe.name,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-                fontFamily = FontFamily.Monospace,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Column {
+                    Text(
+                        text = recipe.name,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        fontFamily = FontFamily.Monospace,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Рейтинг:",
+                            fontSize = 12.sp,
+                            fontFamily = FontFamily.Monospace
+                        )
+                        Text(
+                            text = "${recipe.rating_total} (${recipe.rating_count})",
+                            fontSize = 12.sp,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    }
+                }
+                Column(
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = "Автор:",
+                        fontSize = 12.sp,
+                        fontFamily = FontFamily.Monospace
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+
+                    Text(
+                        text = recipe.author,
+                        fontSize = 12.sp,
+                        fontFamily = FontFamily.Monospace
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "Сложность приготовления",
@@ -139,22 +190,10 @@ fun RecipeCard(recipe: Recipe, navController: NavController, viewModel: RecipeVi
                 )
 
                 recipe.tags.forEach { tag ->
-                    Text(
-                        text = " $tag",
-                        fontSize = 12.sp,
-                        fontFamily = FontFamily.Monospace
-                    )
+                    TagItem(tag) // Use the TagItem composable for each tag
                 }
 
-                IconButton(
-                    onClick = { viewModel.toggleFavorite(recipe.id) }
-                ) {
-                    Icon(
-                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                        contentDescription = "Favorite",
-                        tint = if (isFavorite) Color.Red else Color.Gray
-                    )
-                }
+
             }
         }
     }
@@ -169,4 +208,29 @@ fun RecipeImage(imageName: String) {
         modifier = Modifier.fillMaxSize(),
         contentScale = ContentScale.Crop
     )
+}
+
+@Composable
+fun TagItem(tag: String) {
+    Box(
+        modifier = Modifier
+            .padding(start = 4.dp)
+            .background(
+                color = Color.LightGray,
+                shape = RoundedCornerShape(8.dp) // Rounded corners
+            )
+            .border(
+                width = 1.dp,
+                color = Color.Gray,
+                shape = RoundedCornerShape(8.dp) // Rounded corners
+            )
+            .padding(8.dp) // Padding inside the tag
+    ) {
+        Text(
+            text = tag,
+            fontSize = 12.sp,
+            fontFamily = FontFamily.Monospace,
+            color = Color.Black
+        )
+    }
 }

@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 // RecipeDatabase.kt
-@Database(entities = [RecipeEntity::class], version = 6, exportSchema = false)
+@Database(entities = [RecipeEntity::class], version = 7, exportSchema = false)
 
 abstract class RecipeDatabase : RoomDatabase() {
     abstract fun recipeDao(): RecipeDao

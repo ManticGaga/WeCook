@@ -80,13 +80,6 @@ fun RecipeInfoScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Difficulty Selector
-        DifficultySelector(difficulty) { newDifficulty ->
-            difficulty = newDifficulty
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
         OutlinedTextField(
             value = tags,
             onValueChange = { tags = it },
@@ -102,7 +95,11 @@ fun RecipeInfoScreen(
             label = { Text("Image URL") },
             modifier = Modifier.fillMaxWidth()
         )
+        Spacer(modifier = Modifier.height(8.dp))
 
+        DifficultySlider(difficulty) { newDifficulty ->
+            difficulty = newDifficulty
+        }
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
@@ -266,33 +263,27 @@ fun StepEditing(
     }
 }
 @Composable
-fun DifficultySelector(
+fun DifficultySlider(
     initialDifficulty: Int,
     onDifficultyChange: (Int) -> Unit
 ) {
     var difficulty by remember { mutableStateOf(initialDifficulty) }
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
     ) {
-        for (i in 1..5) {
-            // Icon is "lit" if its index (i) is less than or equal to the difficulty
-            val isLit = i <= difficulty
-            Icon(
-                painter = painterResource(
-                    id = if (isLit) R.drawable.ogon else R.drawable.ogoff
-                ),
-                contentDescription = null,
-                modifier = Modifier
-                    .clickable {
-                        difficulty = i
-                        onDifficultyChange(i)
-                    }
-                    .size(48.dp)
-            )
-        }
+        Slider(
+            value = difficulty.toFloat(),
+            onValueChange = { newValue ->
+                difficulty = newValue.toInt()
+                onDifficultyChange(difficulty)
+            },
+            valueRange = 1f..5f,
+            steps = 4, // Allow for 4 steps between 1 and 5
+            modifier = Modifier.weight(1f) // Makes the slider take up the remaining space
+        )
+        Spacer(modifier = Modifier.width(8.dp)) // Add some spacing
+        Text(text = difficulty.toString()) // Display the value
     }
 }

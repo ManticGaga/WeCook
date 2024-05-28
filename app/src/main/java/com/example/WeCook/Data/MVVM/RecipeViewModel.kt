@@ -5,8 +5,8 @@ import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.WeCook.Data.Retrofit.recipeList
 import com.google.firebase.firestore.FirebaseFirestore
+import com.example.WeCook.Data.Firebase.firestoreRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,11 +20,13 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     private val repository: RecipeRepository
     val allTasks: kotlinx.coroutines.flow.Flow<List<RecipeEntity>>
     private val _firestoreRecipes = MutableStateFlow<List<Recipe>>(emptyList())
-    val firestoreRecipes = _firestoreRecipes.asStateFlow()
+    var firestoreRecipes = _firestoreRecipes.asStateFlow()
+    private lateinit var firestoreRepository: firestoreRepository
 
     init {
         val taskDao = RecipeDatabase.getDatabase(application).recipeDao()
         repository = RecipeRepository(taskDao)
+        firestoreRepository = firestoreRepository(FirebaseFirestore.getInstance()) // Initialize firestoreRepository
         allTasks = repository.allTasks
         fetchFirestoreRecipes()
     }
@@ -49,6 +51,18 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun updateRating(recipeId: String, personalRating: Int) {
+        viewModelScope.launch {
+            val recipe = firestoreRecipes.value?.find { it.id == recipeId }
+            if (recipe != null) {
+                val newRatingCount = recipe.rating_count + 1
+                val newRatingTotal = ((recipe.rating_total * recipe.rating_count) + personalRating) / newRatingCount
+                firestoreRepository.updateRecipeRating(recipeId, newRatingTotal, newRatingCount)
+                firestoreRecipes = _firestoreRecipes.asStateFlow()
+            }
+        }
+    }
+
     fun insertFavoriteRecipe(recipeId: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) { // Use withContext for background thread
@@ -58,13 +72,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                 )
                 repository.insertFavoriteRecipe(recipeEntity)
             }
-        }
-    }
-
-
-    fun deleteFavoriteRecipe(recipeId: String) {
-        viewModelScope.launch {
-            repository.deleteFavoriteRecipe(recipeId)
         }
     }
 
