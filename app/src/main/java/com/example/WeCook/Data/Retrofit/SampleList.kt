@@ -1,10 +1,10 @@
-package com.example.WeCook.Retrofit
+package com.example.WeCook.Data.Retrofit
 
-import com.example.WeCook.MVVM.Recipe
+import com.example.WeCook.Data.MVVM.Recipe
 
 val recipeList = listOf(
     Recipe(
-        id = 0,
+        id = "0",
         author = "Максим",
         name = "Салат Цезарь",
         difficulty = 2,
@@ -17,7 +17,7 @@ val recipeList = listOf(
         receiptdetails_info = listOf (0,90,60,0)
     ),
     Recipe(
-        id = 1,
+        id = "1",
         author = "Максим",
         name = "Паста с грибами",
         difficulty = 4,
@@ -30,7 +30,7 @@ val recipeList = listOf(
         receiptdetails_info = listOf (0,90,60,0)
     ),
     Recipe(
-        id = 2,
+        id = "2",
         author = "Максим",
         name = "Яичница",
         difficulty = 1,
@@ -41,5 +41,5 @@ val recipeList = listOf(
         receiptdetails_image = listOf("grecheskiy_salat","Пусто","yaichinca","Пусто"),
         receiptdetails_text = listOf("grecheskiy_salat","Пусто","yaichinca", "ЕЕЕЕЕЕЕ Макарена"),
         receiptdetails_info = listOf (0,90,60,0)
-    ),
+    )
 )

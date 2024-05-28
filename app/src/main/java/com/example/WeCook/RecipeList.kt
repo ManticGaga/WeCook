@@ -20,6 +20,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,10 +34,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.WeCook.MVVM.Recipe
-import com.example.WeCook.MVVM.RecipeViewModel
-import com.example.WeCook.Retrofit.recipeList
+import com.example.WeCook.Data.MVVM.Recipe
+import com.example.WeCook.Data.MVVM.RecipeViewModel
+import com.example.WeCook.Data.Retrofit.recipeList
 import com.example.WeCook.ui.theme._WeCookTheme
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
+
 
 class RecipeList : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,19 +60,19 @@ class RecipeList : ComponentActivity() {
 
 @Composable
 fun RecipeList(navController: NavController, viewModel: RecipeViewModel = viewModel()) {
+    val firestoreRecipes by viewModel.firestoreRecipes.collectAsState()
     LazyColumn {
-        items(recipeList) { recipe ->
+        items(firestoreRecipes) { recipe -> // Use firestoreRecipes here
             RecipeCard(recipe, navController, viewModel)
         }
     }
 }
 
 
-
 @Composable
-fun RecipeCard(recipe: Recipe, navController: NavController,  viewModel: RecipeViewModel) {
+fun RecipeCard(recipe: Recipe, navController: NavController, viewModel: RecipeViewModel) {
 
-    val recipeEntity = viewModel.allTasks.collectAsState(emptyList()).value.find { it.recipeId == recipe.id }
+    val recipeEntity = viewModel.allTasks.collectAsState(emptyList()).value.find { it.id == recipe.id }
     val isFavorite = recipeEntity?.isFavorite ?: false
 
     Card(
@@ -156,10 +160,10 @@ fun RecipeCard(recipe: Recipe, navController: NavController,  viewModel: RecipeV
                         tint = if (isFavorite) Color.Red else Color.Gray
                     )
                 }
-               }
             }
         }
     }
+}
 @Composable
 fun RecipeImage(imageName: String) {
     val context = LocalContext.current

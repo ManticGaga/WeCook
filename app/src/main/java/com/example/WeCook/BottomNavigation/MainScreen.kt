@@ -18,7 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
-import com.example.WeCook.Firebase.GoogleAuthUiClient
+import com.example.WeCook.Data.Firebase.GoogleAuthUiClient
 import com.example.WeCook.ProfileScreen
 import kotlinx.coroutines.launch
 

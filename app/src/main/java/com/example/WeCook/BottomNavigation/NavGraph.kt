@@ -14,7 +14,7 @@ import com.example.WeCook.RecipeList
 
 @Composable
 fun NavGraph(navHostController: NavHostController) {
-    NavHost(navController = navHostController, startDestination = "Add") {
+    NavHost(navController = navHostController, startDestination = "RecipeList") {
         composable("RecipeList") {
             RecipeList(navHostController)
         }
@@ -28,8 +28,8 @@ fun NavGraph(navHostController: NavHostController) {
             "RecipeDetails/{recipeId}",
             arguments = listOf(navArgument("recipeId") { type = NavType.IntType })
         ) { backStackEntry ->
-            val recipeId = backStackEntry.arguments?.getInt("recipeId") ?: 0
-            RecipeDetails(viewModel = viewModel(), recipeId = recipeId)
+            val recipeId = backStackEntry.arguments?.getString("recipeId") ?: 0
+            RecipeDetails(viewModel = viewModel(), recipeId = recipeId.toString())
         }
     }
 }

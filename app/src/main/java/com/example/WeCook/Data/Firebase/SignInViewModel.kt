@@ -1,4 +1,4 @@
-package com.example.WeCook.Firebase
+package com.example.WeCook.Data.Firebase
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

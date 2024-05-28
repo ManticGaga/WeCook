@@ -1,4 +1,4 @@
-package com.example.WeCook.Firebase
+package com.example.WeCook.Data.Firebase
 
 data class SignInResult(
     val data: UserData?,

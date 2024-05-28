@@ -1,4 +1,4 @@
-package com.example.WeCook.MVVM
+package com.example.WeCook.Data.MVVM
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -15,7 +15,7 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
 //        recipeDao.updateFavoriteStatus(recipeId, isFavorite)
 //    }
 
-    suspend fun deleteFavoriteRecipe(recipeId: Int) {
+    suspend fun deleteFavoriteRecipe(recipeId: String) {
         recipeDao.deleteFavoriteRecipe(recipeId)
     }
     fun getFavoriteRecipes(): Flow<List<RecipeEntity>> {

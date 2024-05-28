@@ -27,9 +27,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.WeCook.Firebase.GoogleAuthUiClient
-import com.example.WeCook.Firebase.SignIn
-import com.example.WeCook.Firebase.UserData
+import com.example.WeCook.Data.Firebase.GoogleAuthUiClient
+import com.example.WeCook.Data.Firebase.SignIn
+import com.example.WeCook.Data.Firebase.UserData
 import com.example.WeCook.ProfileScreen
 import com.example.WeCook.ui.theme._WeCookTheme
 import com.google.android.gms.auth.api.identity.Identity
@@ -37,7 +37,6 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private lateinit var googleAuthUiClient: GoogleAuthUiClient
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         googleAuthUiClient = GoogleAuthUiClient(

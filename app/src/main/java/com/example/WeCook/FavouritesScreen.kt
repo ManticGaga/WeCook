@@ -1,21 +1,30 @@
 package com.example.WeCook
 
-import android.content.Context
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,52 +35,55 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.WeCook.MVVM.RecipeEntity
-import com.example.WeCook.MVVM.RecipeViewModel
-import com.example.WeCook.ui.theme.NormalTextComponent
-import com.example.WeCook.R
+import com.example.WeCook.Data.MVVM.Recipe
+import com.example.WeCook.Data.MVVM.RecipeViewModel
+import com.example.WeCook.ui.theme._WeCookTheme
 
-@Composable
-fun FavouritesScreen(navController: NavController, viewModel: RecipeViewModel = viewModel()) {
-    Column(
-        modifier = Modifier.verticalScroll(rememberScrollState()).padding(top = 10.dp).padding(bottom = 15.dp)
-    ) {
 
-        NormalTextComponent(value = stringResource(id = R.string.hell5))
-
-    }
-
-    val favoriteList by viewModel.allTasks.collectAsState(initial = emptyList())
-
-    LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(top = 50.dp) // Установите отступ, чтобы избежать перекрытия
-    ) {
-        items(favoriteList) { Recipe ->
-            RecipeCard_Fav(Recipe, navController, viewModel)
+class RecipeListFav : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            _WeCookTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    RecipeListFav()
+                }
+            }
         }
     }
 }
 
 @Composable
-fun RecipeCard_Fav(recipe: RecipeEntity, navController: NavController, viewModel: RecipeViewModel) {
+fun FavouritesScreen(navController: NavController, viewModel: RecipeViewModel = viewModel()) {
+    val firestoreRecipes by viewModel.firestoreRecipes.collectAsState()
+    LazyColumn {
+        items(firestoreRecipes) { recipe -> // Use firestoreRecipes here
+            RecipeCard(recipe, navController, viewModel)
+        }
+    }
+}
 
-    val recipeEntity = viewModel.allTasks.collectAsState(emptyList()).value.find { it.recipeId == recipe.id }
+
+@Composable
+fun RecipeCardFav(recipe: Recipe, navController: NavController, viewModel: RecipeViewModel) {
+
+    val recipeEntity = viewModel.allTasks.collectAsState(emptyList()).value.find { it.id == recipe.id }
     val isFavorite = recipeEntity?.isFavorite ?: false
-    val context = LocalContext.current
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
             .clickable {
-                navController.navigate("RecipeDetails?id=${recipe.id}")
+                navController.navigate("RecipeDetails/${recipe.id}")
             }
     ) {
         Column(
@@ -84,9 +96,8 @@ fun RecipeCard_Fav(recipe: RecipeEntity, navController: NavController, viewModel
                     .fillMaxWidth()
                     .height(200.dp)
                     .clip(RoundedCornerShape(4.dp))
-            )
-            {
-                RecipeImage_fav(recipe.image, context)
+            ) {
+                RecipeImage(recipe.image)
             }
             Text(
                 text = recipe.name,
@@ -141,9 +152,13 @@ fun RecipeCard_Fav(recipe: RecipeEntity, navController: NavController, viewModel
                     )
                 }
 
-                IconButton(onClick = { viewModel.deleteFavoriteRecipe(recipe.id) }) {
+                IconButton(onClick = {
+                    viewModel.toggleFavorite(recipe.id)
+
+                }
+                ) {
                     Icon(
-                        imageVector = Icons.Filled.Favorite,
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                         contentDescription = "Favorite",
                         tint = if (isFavorite) Color.Red else Color.Gray
                     )
@@ -153,7 +168,7 @@ fun RecipeCard_Fav(recipe: RecipeEntity, navController: NavController, viewModel
     }
 }
 @Composable
-fun RecipeImage_fav(imageName: String, context: Context) {
+fun RecipeImageFav(imageName: String) {
     val context = LocalContext.current
     val imageResource = context.resources.getIdentifier(imageName, "drawable", context.packageName)
     Image(

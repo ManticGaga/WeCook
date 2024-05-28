@@ -67,6 +67,7 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.2.1")
 
     implementation("com.google.firebase:firebase-auth:23.0.0")
+    implementation("com.google.firebase:firebase-firestore:25.0.0")
     kapt("androidx.room:room-compiler:2.6.0")
     implementation ("androidx.navigation:navigation-compose:2.6.0-alpha04")
     //implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
@@ -81,6 +82,4 @@ dependencies {
 
     implementation("androidx.room:room-common:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
-
-    // ... (test dependencies)
 }

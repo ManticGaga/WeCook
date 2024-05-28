@@ -1,4 +1,4 @@
-package com.example.WeCook.Firebase
+package com.example.WeCook.Data.Firebase
 
 import android.content.Intent
 import android.os.Bundle

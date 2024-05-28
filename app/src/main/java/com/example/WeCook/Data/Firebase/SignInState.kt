@@ -1,4 +1,4 @@
-package com.example.WeCook.Firebase
+package com.example.WeCook.Data.Firebase
 
 data class SignInState(
     val isSignInSuccessful: Boolean = false,

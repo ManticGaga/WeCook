@@ -28,9 +28,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
-import com.example.WeCook.MVVM.RecipeViewModel
+import com.example.WeCook.Data.MVVM.RecipeViewModel
 @Composable
-fun RecipeDetails(viewModel: RecipeViewModel, recipeId: Int) {
+fun RecipeDetails(viewModel: RecipeViewModel, recipeId: String) {
     val recipe = viewModel.getRecipeDetails(recipeId)
     var currentStep by remember { mutableStateOf(0) }
 

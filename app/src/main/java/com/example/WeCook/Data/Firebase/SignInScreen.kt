@@ -1,4 +1,4 @@
-package com.example.WeCook.Firebase
+package com.example.WeCook.Data.Firebase
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
