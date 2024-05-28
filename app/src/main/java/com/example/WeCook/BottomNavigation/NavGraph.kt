@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.WeCook.AddRecipeScreen
-import com.example.WeCook.FavouritesScreen
+import com.example.WeCook.FavoritesScreen
 import com.example.WeCook.RecipeDetails
 import com.example.WeCook.RecipeList
 
@@ -22,7 +22,7 @@ fun NavGraph(navHostController: NavHostController) {
             AddRecipeScreen()
         }
         composable("Favourites") {
-            FavouritesScreen(navHostController)
+            FavoritesScreen(navHostController)
         }
         composable(
             "RecipeDetails/{recipeId}",

@@ -1,6 +1,7 @@
 package com.example.WeCook
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -39,6 +40,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.WeCook.Data.MVVM.Recipe
 import com.example.WeCook.Data.MVVM.RecipeViewModel
@@ -62,11 +64,19 @@ class RecipeListFav : ComponentActivity() {
 }
 
 @Composable
-fun FavouritesScreen(navController: NavController, viewModel: RecipeViewModel = viewModel()) {
-    val firestoreRecipes by viewModel.firestoreRecipes.collectAsState()
-    LazyColumn {
-        items(firestoreRecipes) { recipe -> // Use firestoreRecipes here
-            RecipeCard(recipe, navController, viewModel)
+fun FavoritesScreen(navController: NavController, viewModel: RecipeViewModel = viewModel()) {
+    val favoriteRecipes by viewModel.favoriteRecipes.collectAsState(initial = emptyList())
+
+    if (favoriteRecipes.isEmpty()) {
+        Text("There are no favorite recipes. Yet :)")
+    } else {
+        LazyColumn {
+            items(favoriteRecipes) { favoriteRecipe ->
+                val recipe = viewModel.getRecipeDetails(favoriteRecipe.id)
+                if (recipe != null) {
+                    RecipeCardFav(recipe, navController, viewModel)
+                }
+            }
         }
     }
 }
@@ -97,7 +107,7 @@ fun RecipeCardFav(recipe: Recipe, navController: NavController, viewModel: Recip
                     .height(200.dp)
                     .clip(RoundedCornerShape(4.dp))
             ) {
-                RecipeImage(recipe.image)
+                RecipeImageFav(recipe.image)
             }
             Text(
                 text = recipe.name,
@@ -153,6 +163,7 @@ fun RecipeCardFav(recipe: Recipe, navController: NavController, viewModel: Recip
                 }
 
                 IconButton(onClick = {
+                    Log.d("RecipeCard", "Toggling favorite for recipe ID: ${recipe.id}")
                     viewModel.toggleFavorite(recipe.id)
 
                 }

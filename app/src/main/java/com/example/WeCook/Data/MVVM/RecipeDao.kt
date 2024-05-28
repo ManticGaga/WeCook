@@ -15,7 +15,6 @@ interface RecipeDao {
     suspend fun updateFavoriteStatus(recipeId: Int, isFavorite: Boolean)
     @Query("SELECT * FROM favorite_recipes")
     fun getAllFavorite(): Flow<List<RecipeEntity>>
-
     @Query("DELETE FROM favorite_recipes WHERE id = :recipeId")
     suspend fun deleteFavoriteRecipe(recipeId: kotlin.String)
 }

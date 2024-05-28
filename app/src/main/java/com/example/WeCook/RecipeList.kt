@@ -61,8 +61,9 @@ class RecipeList : ComponentActivity() {
 @Composable
 fun RecipeList(navController: NavController, viewModel: RecipeViewModel = viewModel()) {
     val firestoreRecipes by viewModel.firestoreRecipes.collectAsState()
+
     LazyColumn {
-        items(firestoreRecipes) { recipe -> // Use firestoreRecipes here
+        items(firestoreRecipes) { recipe ->
             RecipeCard(recipe, navController, viewModel)
         }
     }
@@ -71,7 +72,6 @@ fun RecipeList(navController: NavController, viewModel: RecipeViewModel = viewMo
 
 @Composable
 fun RecipeCard(recipe: Recipe, navController: NavController, viewModel: RecipeViewModel) {
-
     val recipeEntity = viewModel.allTasks.collectAsState(emptyList()).value.find { it.id == recipe.id }
     val isFavorite = recipeEntity?.isFavorite ?: false
 
@@ -131,8 +131,7 @@ fun RecipeCard(recipe: Recipe, navController: NavController, viewModel: RecipeVi
                 }
             }
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = "Тэги:",
@@ -149,10 +148,8 @@ fun RecipeCard(recipe: Recipe, navController: NavController, viewModel: RecipeVi
                     )
                 }
 
-                IconButton(onClick = {
-                    viewModel.toggleFavorite(recipe.id)
-
-                }
+                IconButton(
+                    onClick = { viewModel.toggleFavorite(recipe.id) }
                 ) {
                     Icon(
                         imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,

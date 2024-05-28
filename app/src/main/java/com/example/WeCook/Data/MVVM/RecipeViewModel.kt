@@ -5,23 +5,22 @@ import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-//import com.example.WeCook.Data.Firebase.FirestoreRepository
 import com.example.WeCook.Data.Retrofit.recipeList
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.firestore
-
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class RecipeViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: RecipeRepository
     val allTasks: kotlinx.coroutines.flow.Flow<List<RecipeEntity>>
     private val _firestoreRecipes = MutableStateFlow<List<Recipe>>(emptyList())
     val firestoreRecipes = _firestoreRecipes.asStateFlow()
-    val db = Firebase.firestore
 
     init {
         val taskDao = RecipeDatabase.getDatabase(application).recipeDao()
@@ -29,64 +28,67 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         allTasks = repository.allTasks
         fetchFirestoreRecipes()
     }
-    fun insertFavoriteRecipe(recipeId: String) {
-        viewModelScope.launch {
-            val recipe = recipeList.find { it.id == recipeId } ?: return@launch
-            val recipeEntity = recipe.id?.let {
-                RecipeEntity(
-                    id = it,
-                    isFavorite = false
-                )
-            }
-            if (recipeEntity != null) {
-                repository.insertFavoriteRecipe(recipeEntity)
-            }
 
+    private fun fetchFirestoreRecipes() {
+        viewModelScope.launch {
+            try {
+                val recipes = FirebaseFirestore.getInstance()
+                    .collection("recipes")
+                    .get()
+                    .await()
+                    .documents
+                    .mapNotNull { document ->
+                        document.toObject(Recipe::class.java)?.also { recipe ->
+                            recipe.id = document.id
+                        }
+                    }
+                _firestoreRecipes.value = recipes
+            } catch (e: Exception) {
+                Log.e(TAG, "Error fetching recipes", e)
+            }
         }
     }
+
+    fun insertFavoriteRecipe(recipeId: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) { // Use withContext for background thread
+                val recipeEntity = RecipeEntity(
+                    id = recipeId,
+                    isFavorite = true
+                )
+                repository.insertFavoriteRecipe(recipeEntity)
+            }
+        }
+    }
+
+
     fun deleteFavoriteRecipe(recipeId: String) {
         viewModelScope.launch {
             repository.deleteFavoriteRecipe(recipeId)
         }
     }
+
     fun getRecipeDetails(recipeId: String): Recipe? {
-        return recipeList.find { it.id == recipeId }
+        return firestoreRecipes.value.find { it.id == recipeId }
     }
-    //    val favoriteRecipes: Flow<List<RecipeEntity>> = repository.getFavoriteRecipes()
+
     fun toggleFavorite(recipeId: String) {
         viewModelScope.launch {
+            Log.d("RecipeViewModel", "Attempting to toggle favorite for recipe ID: $recipeId")
             val recipeEntity = repository.allTasks.first().find { it.id == recipeId }
+
             if (recipeEntity != null) {
+                Log.d("RecipeViewModel", "Recipe found, isFavorite = ${recipeEntity.isFavorite}")
                 if (recipeEntity.isFavorite) {
                     repository.deleteFavoriteRecipe(recipeId)
                 } else {
                     insertFavoriteRecipe(recipeId)
                 }
-            }
-            else {
+            } else {
+                Log.d("RecipeViewModel", "Recipe not found in database, inserting...")
                 insertFavoriteRecipe(recipeId)
             }
         }
     }
-    private fun fetchFirestoreRecipes() {
-        viewModelScope.launch {
-            try {
-                db.collection("recipes")
-                    .get()
-                    .addOnSuccessListener { result ->
-                        val recipes = result.documents.mapNotNull { document ->
-                            document.toObject(Recipe::class.java)?.also { recipe ->
-                                recipe.id = document.id
-                            }
-                        }
-                        _firestoreRecipes.value = recipes
-                    }
-                    .addOnFailureListener { exception ->
-                        Log.w(TAG, "Error getting documents.", exception)
-                    }
-            } catch (e: Exception) {
-                // Handle errors
-            }
-        }
-    }
+    val favoriteRecipes: Flow<List<RecipeEntity>> = repository.getFavoriteRecipes()
 }
