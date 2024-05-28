@@ -1,3 +1,4 @@
+package com.example.WeCook.Data.Constructor
 import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.compose.foundation.clickable
@@ -39,9 +40,6 @@ fun AddRecipeScreen(
         // Show Recipe Info Screen
         RecipeInfoScreen(
             recipeState = recipeState,
-            onDifficultyChange = { newDifficulty ->
-                recipeState = recipeState.copy(difficulty = newDifficulty)
-            }, // Pass a lambda function to update recipeState.difficulty
             onNextClick = { updatedState ->
                 recipeState = updatedState
                 showStepsEditing = true
@@ -59,7 +57,6 @@ fun AddRecipeScreen(
 @Composable
 fun RecipeInfoScreen(
     recipeState: RecipeCreationState,
-    onDifficultyChange: (Int) -> Unit,  // Receive the difficulty change function
     onNextClick: (RecipeCreationState) -> Unit
 ) {
     var name by remember { mutableStateOf(recipeState.name) }
@@ -83,8 +80,9 @@ fun RecipeInfoScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        DifficultySelector(recipeState.difficulty) { newDifficulty ->
-            onDifficultyChange(newDifficulty)
+        // Difficulty Selector
+        DifficultySelector(difficulty) { newDifficulty ->
+            difficulty = newDifficulty
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -272,13 +270,7 @@ fun DifficultySelector(
     initialDifficulty: Int,
     onDifficultyChange: (Int) -> Unit
 ) {
-    var selectedDifficulty by remember { mutableStateOf(initialDifficulty) }
-
-    val icons = remember(selectedDifficulty) { // Key on selectedDifficulty
-        List(5) { index ->
-            IconState(index + 1, index + 1 <= selectedDifficulty)
-        }
-    }
+    var difficulty by remember { mutableStateOf(initialDifficulty) }
 
     Row(
         modifier = Modifier
@@ -286,22 +278,21 @@ fun DifficultySelector(
             .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        icons.forEach { iconState ->
+        for (i in 1..5) {
+            // Icon is "lit" if its index (i) is less than or equal to the difficulty
+            val isLit = i <= difficulty
             Icon(
                 painter = painterResource(
-                    id = if (iconState.isLit) R.drawable.ogon else R.drawable.ogoff
+                    id = if (isLit) R.drawable.ogon else R.drawable.ogoff
                 ),
                 contentDescription = null,
                 modifier = Modifier
                     .clickable {
-                        selectedDifficulty = iconState.index
-                        onDifficultyChange(iconState.index)
+                        difficulty = i
+                        onDifficultyChange(i)
                     }
                     .size(48.dp)
             )
         }
     }
 }
-
-// A simple data class to hold the state of each icon
-data class IconState(val index: Int, val isLit: Boolean)
