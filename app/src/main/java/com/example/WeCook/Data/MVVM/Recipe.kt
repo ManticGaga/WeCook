@@ -12,7 +12,6 @@ data class Recipe(
     var stepstotal: Int = 0,
     var receiptdetails_image: List<String> = emptyList(),
     var receiptdetails_text: List<String> = emptyList(),
-    var receiptdetails_info: List<Int> = emptyList()
-) {
-    // ... (Your validation logic can remain here)
-}
+    var receiptdetails_info: List<Int> = emptyList(),
+    var userRatings: Map<String, Int> = emptyMap() // Map of usernames to ratings
+)

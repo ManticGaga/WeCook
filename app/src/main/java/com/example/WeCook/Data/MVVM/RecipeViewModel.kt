@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.WeCook.Data.Firebase.firestoreRepository
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +23,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     private val _firestoreRecipes = MutableStateFlow<List<Recipe>>(emptyList())
     var firestoreRecipes = _firestoreRecipes.asStateFlow()
     private lateinit var firestoreRepository: firestoreRepository
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
     init {
         val taskDao = RecipeDatabase.getDatabase(application).recipeDao()
@@ -55,10 +57,31 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             val recipe = firestoreRecipes.value?.find { it.id == recipeId }
             if (recipe != null) {
-                val newRatingCount = recipe.rating_count + 1
-                val newRatingTotal = ((recipe.rating_total * recipe.rating_count) + personalRating) / newRatingCount
-                firestoreRepository.updateRecipeRating(recipeId, newRatingTotal, newRatingCount)
-                firestoreRecipes = _firestoreRecipes.asStateFlow()
+                val currentUser = auth.currentUser
+                if (currentUser != null) {
+                    // Update user ratings in Firestore
+                    val updatedUserRatings = recipe.userRatings.toMutableMap()
+                    updatedUserRatings[currentUser.uid] = personalRating
+
+                    firestoreRepository.updateUserRating(recipeId, updatedUserRatings)
+
+                    // Calculate new total rating and count
+                    val newRatingCount = updatedUserRatings.size // Count all users who rated
+                    val newRatingTotal = updatedUserRatings.values.sum().toFloat() // Sum of all ratings
+
+                    // Update the overall rating in Firestore
+                    firestoreRepository.updateRecipeRating(recipeId, newRatingTotal, newRatingCount)
+
+                    // Update the local list of recipes
+                    val newRecipes = _firestoreRecipes.value?.toMutableList()
+                    newRecipes?.find { it.id == recipeId }?.userRatings = updatedUserRatings
+                    newRecipes?.find { it.id == recipeId }?.rating_total = newRatingTotal
+                    newRecipes?.find { it.id == recipeId }?.rating_count = newRatingCount
+                    _firestoreRecipes.value = newRecipes ?: emptyList()
+                } else {
+                    // User is not logged in. Handle this case appropriately.
+                    Log.w(TAG, "User is not logged in, cannot update rating.")
+                }
             }
         }
     }

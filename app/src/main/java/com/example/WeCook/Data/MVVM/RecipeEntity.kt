@@ -7,5 +7,4 @@ import androidx.room.PrimaryKey
 data class RecipeEntity(
     @PrimaryKey val id: String = "", // Use String ID here as well
     var isFavorite: Boolean = false,
-    var personalRating: Int = -1 // -1 can indicate "not rated"
 )

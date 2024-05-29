@@ -16,4 +16,12 @@ class firestoreRepository(private val db: FirebaseFirestore) {
         ).await()
     }
 
+    suspend fun updateUserRating(recipeId: String, userRatings: Map<String, Int>) {
+        val recipeRef = db.collection("recipes").document(recipeId)
+        recipeRef.update(
+            mapOf(
+                "userRatings" to userRatings // Update the userRatings map
+            )
+        ).await()
+    }
 }

@@ -129,7 +129,7 @@ fun RecipeCard(recipe: Recipe, navController: NavController, viewModel: RecipeVi
                             fontFamily = FontFamily.Monospace
                         )
                         Text(
-                            text = "${recipe.rating_total} (${recipe.rating_count})",
+                            text = String.format("%.2f", recipe.rating_total / recipe.rating_count) + " (${recipe.rating_count})",
                             fontSize = 12.sp,
                             fontFamily = FontFamily.Monospace
                         )
