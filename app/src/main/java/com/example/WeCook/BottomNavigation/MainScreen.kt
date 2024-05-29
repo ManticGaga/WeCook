@@ -31,7 +31,7 @@ fun MainScreen(googleAuthUiClient: GoogleAuthUiClient, onSignOut: () -> Unit) {
         modifier = Modifier.padding(top = 16.dp),
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("WeCook") },
+                title = { Text("appTitle") },
                 actions = {
                     Box(
                         modifier = Modifier

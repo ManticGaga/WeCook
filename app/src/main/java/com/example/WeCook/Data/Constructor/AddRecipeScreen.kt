@@ -3,6 +3,8 @@ import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -119,7 +121,6 @@ fun RecipeInfoScreen(
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StepsEditingScreen(
@@ -132,14 +133,22 @@ fun StepsEditingScreen(
     val db = Firebase.firestore
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    fun previousStep() {
+        if (currentStep > 0) {
+            currentStep--
+        }
+    }
 
+    fun nextStep() {
+        if (currentStep < recipeState.steps.size - 1) {
+            currentStep++
+        } else {
+            recipeState.steps.add(RecipeStep(currentStep + 2, "", "", 0))
+            currentStep++
+        }
+    }
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Editing Steps") }
-            )
-        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -166,21 +175,15 @@ fun StepsEditingScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Button(
-                    onClick = { if (currentStep > 0) currentStep-- },
+                    onClick = { previousStep() }, // Call previousStep here
                     enabled = currentStep > 0
                 ) {
                     Text("Previous Step")
                 }
 
                 Button(
-                    onClick = {
-                        if (currentStep < recipeState.steps.size - 1) {
-                            currentStep++
-                        } else {
-                            recipeState.steps.add(RecipeStep(currentStep + 2, "", "", 0))
-                            currentStep++
-                        }
-                    }
+                    onClick = { nextStep() }, // Call nextStep here
+                    enabled = currentStep < recipeState.steps.size - 1
                 ) {
                     Text("Next Step")
                 }
@@ -214,6 +217,7 @@ fun StepsEditingScreen(
         }
     }
 }
+
 @Composable
 fun StepEditing(
     currentStep: Int,
@@ -238,6 +242,7 @@ fun StepEditing(
         )
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Make the text field scrollable
         OutlinedTextField(
             value = text,
             onValueChange = { newValue ->
@@ -245,6 +250,8 @@ fun StepEditing(
             },
             label = { Text("Step Description") },
             modifier = Modifier.fillMaxWidth()
+                .height(100.dp) // Set a fixed height for the text field
+                .verticalScroll(rememberScrollState()) // Enable vertical scrolling
         )
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -262,6 +269,7 @@ fun StepEditing(
         onStepChange(recipeStep.copy(imageUrl = imageUrl, text = text, info = info.toIntOrNull() ?: 0))
     }
 }
+
 @Composable
 fun DifficultySlider(
     initialDifficulty: Int,
@@ -287,3 +295,4 @@ fun DifficultySlider(
         Text(text = difficulty.toString()) // Display the value
     }
 }
+
