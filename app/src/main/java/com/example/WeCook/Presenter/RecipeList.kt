@@ -210,47 +210,6 @@ fun RecipeCard(recipe: Recipe, navController: NavController, viewModel: RecipeVi
 }
 
 @Composable
-fun RecipeImage(imageName: String) {
-    val storage = FirebaseStorage.getInstance()
-    val storageRef = storage.reference.child("receipt_images/$imageName")
-    var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    val context = LocalContext.current
-    LaunchedEffect(imageName) {
-        try {
-            val imageUri = storageRef.downloadUrl.await()
-            val imageStream: InputStream = URL(imageUri.toString()).openStream()
-            imageBitmap = BitmapFactory.decodeStream(imageStream)
-        } catch (e: Exception) {
-            Log.e("RecipeImage", "Error loading image: ${e.message}")
-            // Load placeholder image if the main image is not found
-            val placeholderImageId = context.resources.getIdentifier(
-                "placeholder", "drawable", context.packageName
-            )
-            imageBitmap = BitmapFactory.decodeResource(context.resources, placeholderImageId)
-        }
-    }
-
-    imageBitmap?.let {
-        // Crop the image using Canvas
-        val croppedBitmap = Bitmap.createBitmap(400, 300, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(croppedBitmap)
-        val sourceRect = Rect(0, 0, it.width, it.height) // Source rect for the entire image
-        val destRect = Rect(0, 0, 400, 300) // Destination rect for the cropped image
-        canvas.drawBitmap(it, sourceRect, destRect, null)
-
-        // Display the cropped image
-        Image(
-            bitmap = croppedBitmap.asImageBitmap(),
-            contentDescription = null,
-            modifier = Modifier
-                .width(400.dp)
-                .height(300.dp), // Set the desired dimensions here
-            contentScale = ContentScale.Crop
-        )
-    }
-}
-
-@Composable
 fun TagItem(tag: String) {
     Box(
         modifier = Modifier
