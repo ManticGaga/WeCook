@@ -35,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 
 import com.example.WeCook.Data.MVVM.RecipeViewModel
 
@@ -92,17 +93,6 @@ fun RecipeDetails(viewModel: RecipeViewModel, recipeId: String) {
                         onHorizontalDrag = {_ , dragAmount -> onSwipe(dragAmount) },
                         onDragEnd = { onSwipeEnd() }
                     )
-                    fun nextStep() {
-                        if (currentStep < recipe.stepstotal - 1) {
-                            currentStep++
-                        }
-                    }
-
-                    fun previousStep() {
-                        if (currentStep > 0) {
-                            currentStep--
-                        }
-                    }
                 }
         ) {
             Box(
@@ -112,38 +102,12 @@ fun RecipeDetails(viewModel: RecipeViewModel, recipeId: String) {
                     .offset { IntOffset(offsetX.toInt(), 0) } // Apply offset for swipe animation
                     .clip(RoundedCornerShape(4.dp))
             ) {
-                RecipeImage(recipe.receiptdetails_image[currentStep])
-                val imageName = recipe.receiptdetails_image[currentStep]
-                if (imageName == "Пусто") {
-                    Text(
-                        text = "Пусто",
-                        modifier = Modifier.fillMaxSize(),
-                        textAlign = TextAlign.Center
-                    )
-                } else {
-                    val context = LocalContext.current
-                    val imageResource = context.resources.getIdentifier(
-                        imageName, "drawable", context.packageName
-                    )
-                    if (imageResource != 0) {
-                        Image(
-                            painter = painterResource(id = imageResource),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp)
-                                .background(
-                                    brush = Brush.verticalGradient(
-                                        colors = listOf(Color.Transparent, Color.Black),
-                                        startY = 0.5f // Adjust gradient start to center
-                                    )
-                                ),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
-                        // Handle case where image is not found (optional)
-                    }
-                }
+                Image(
+                    painter = rememberAsyncImagePainter(recipe.receiptdetails_image[currentStep]),
+                    contentDescription = "Recipe Step Image",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
                 Text(
                     text = "Step ${currentStep + 1} / ${recipe.stepstotal}",
                     modifier = Modifier

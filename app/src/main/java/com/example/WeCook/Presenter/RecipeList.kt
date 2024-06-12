@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.example.WeCook.Data.MVVM.Recipe
 import com.example.WeCook.Data.MVVM.RecipeViewModel
 import com.example.WeCook.R
@@ -103,7 +104,13 @@ fun RecipeCard(recipe: Recipe, navController: NavController, viewModel: RecipeVi
                     .height(200.dp)
                     .clip(RoundedCornerShape(4.dp))
             ) {
-                RecipeImage(recipe.image) // Place ImageComposable inside the Box
+                Image(
+                    painter = rememberAsyncImagePainter(recipe.image),
+                    contentDescription = "Recipe Image",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+
                 IconButton(
                     onClick = { viewModel.toggleFavorite(recipe.id) },
                     modifier = Modifier
