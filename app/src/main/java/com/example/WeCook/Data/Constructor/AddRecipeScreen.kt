@@ -7,7 +7,6 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -25,10 +24,8 @@ import com.example.WeCook.Data.MVVM.RecipeViewModel
 import androidx.compose.material3.SnackbarHostState
 import com.google.firebase.firestore.firestore
 import androidx.compose.material3.OutlinedTextField // Use Material3 OutlinedTextField
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
 import com.example.WeCook.Data.Constructor.RecipeCreationState
 import com.example.WeCook.Data.Constructor.RecipeStep
 import com.example.WeCook.Data.Firebase.GoogleAuthUiClient
@@ -40,28 +37,27 @@ import java.util.UUID
 
 @Composable
 fun AddRecipeScreen(
-    navController: NavController,
-    googleAuthUiClient: GoogleAuthUiClient,
-    viewModel: RecipeViewModel = viewModel()
+    navController: NavController, // Add NavController parameter
+    googleAuthUiClient: GoogleAuthUiClient
 ) {
     val authenticatedUser = googleAuthUiClient.getSignedInUser()
-    var recipeState by remember {
-        mutableStateOf(
-            RecipeCreationState(author = authenticatedUser?.username ?: "")
-        )
-    }
+    var recipeState by remember { mutableStateOf(
+        RecipeCreationState(author = authenticatedUser?.username ?: "")
+    ) }
     var showStepsEditing by remember { mutableStateOf(false) }
 
+
     if (!showStepsEditing) {
+        // Show Recipe Info Screen
         RecipeInfoScreen(
             recipeState = recipeState,
             onNextClick = { updatedState ->
                 recipeState = updatedState
                 showStepsEditing = true
-            },
-            viewModel = viewModel
+            }
         )
     } else {
+        // Show Steps Editing Screen
         StepsEditingScreen(
             navController = navController,
             initialRecipeState = recipeState
@@ -72,8 +68,7 @@ fun AddRecipeScreen(
 @Composable
 fun RecipeInfoScreen(
     recipeState: RecipeCreationState,
-    onNextClick: (RecipeCreationState) -> Unit,
-    viewModel: RecipeViewModel
+    onNextClick: (RecipeCreationState) -> Unit
 ) {
     var name by remember { mutableStateOf(recipeState.name) }
     var tags by remember { mutableStateOf(recipeState.tags.joinToString(", ")) }
@@ -85,8 +80,16 @@ fun RecipeInfoScreen(
         if (result.resultCode == Activity.RESULT_OK) {
             val data: Intent? = result.data
             data?.data?.let { uri ->
-                uploadImageToFirebaseStorage(uri) { downloadUrl ->
-                    imageUrl = downloadUrl ?: ""
+                val storageRef = FirebaseStorage.getInstance().reference
+                val imageRef = storageRef.child("recipe_images/${name}/${UUID.randomUUID().toString()}") // Use the recipe name as the subfolder
+                val uploadTask = imageRef.putFile(uri)
+                uploadTask.addOnSuccessListener { taskSnapshot ->
+                    // Get the download URL
+                    taskSnapshot.storage.downloadUrl.addOnSuccessListener { downloadUrl ->
+                        imageUrl = downloadUrl.toString()
+                    }
+                }.addOnFailureListener { exception ->
+                    Log.e("Firebase", "Image upload failed: ${exception.message}")
                 }
             }
         }
@@ -124,22 +127,8 @@ fun RecipeInfoScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Choose Recipe Image")
+            Text("Choose Receipt Image")
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        if (imageUrl.isNotEmpty()) {
-            Image(
-                painter = rememberAsyncImagePainter(imageUrl),
-                contentDescription = "Recipe Image",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                contentScale = ContentScale.Crop
-            )
-        }
-
         Spacer(modifier = Modifier.height(8.dp))
 
         DifficultySlider(difficulty) { newDifficulty ->
@@ -163,7 +152,6 @@ fun RecipeInfoScreen(
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -205,6 +193,7 @@ fun StepsEditingScreen(
             // Current step editing
             StepEditing(
                 currentStep = currentStep,
+                recipeState = recipeState,
                 recipeStep = recipeState.steps[currentStep]
             ) { updatedStep ->
                 recipeState.steps[currentStep] = updatedStep;
@@ -226,6 +215,7 @@ fun StepsEditingScreen(
 
                 Button(
                     onClick = { nextStep() }, // Call nextStep here
+                    enabled = currentStep < recipeState.steps.size - 1
                 ) {
                     Text("Next Step")
                 }
@@ -258,55 +248,52 @@ fun StepsEditingScreen(
         }
     }
 }
-private fun uploadImageToFirebaseStorage(uri: Uri, onComplete: (String?) -> Unit) {
-    val storage = FirebaseStorage.getInstance()
-    val storageRef = storage.reference
-    val imageName = UUID.randomUUID().toString()
-    val imageRef = storageRef.child("recipe_images/$imageName")
 
-    val uploadTask = imageRef.putFile(uri)
-
-    uploadTask.addOnProgressListener { taskSnapshot ->
-        val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount).toInt()
-        Log.d(TAG, "Upload is $progress% done")
-    }.addOnSuccessListener {
-        // Get download URL
-        imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-            onComplete(downloadUri.toString())
-        }.addOnFailureListener { exception ->
-            Log.e(TAG, "Failed to get download URL: ${exception.message}")
-            onComplete(null)
-        }
-    }.addOnFailureListener { exception ->
-        Log.e(TAG, "Image upload failed: ${exception.message}")
-        onComplete(null)
-    }
-}
 @Composable
 fun StepEditing(
     currentStep: Int,
     recipeStep: RecipeStep,
+    recipeState: RecipeCreationState,
     onStepChange: (RecipeStep) -> Unit
 ) {
-    var imageUrl by remember { mutableStateOf(recipeStep.imageUrl) }
+    var imageUploadProgress by remember { mutableStateOf(0f) }
+    var imageUrl by remember { mutableStateOf(recipeStep.imageUrl) } // Store the download URL
+    var showImageUploadDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val storage = FirebaseStorage.getInstance()
+    val storageReference = storage.reference
     var text by remember { mutableStateOf(recipeStep.text) }
-    var info by remember { mutableStateOf(recipeStep.info.toString()) }
+    var info by remember { mutableStateOf(recipeStep.info.toString()) } // Store as String
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val data: Intent? = result.data
             data?.data?.let { uri ->
-                uploadImageToFirebaseStorage(uri) { downloadUrl ->
-                    imageUrl = downloadUrl ?: ""
-                    onStepChange(recipeStep.copy(imageUrl = downloadUrl ?: ""))
+                // Upload the selected image to Firebase Storage
+                val imageName = UUID.randomUUID().toString()
+                Log.d("ImageUpload", "Image name: $imageName") // Added logging
+                val imageRef = storageReference.child("recipe_images/${recipeState.name}/${imageName}")
+                val uploadTask = imageRef.putFile(uri)
+                uploadTask.addOnProgressListener { taskSnapshot ->
+                    val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount).toInt()
+                    imageUploadProgress = progress.toFloat() // Update the progress
+                }.addOnSuccessListener {
+                    imageRef.downloadUrl.addOnSuccessListener { uri ->
+                        imageUrl = uri.toString() // Store the download URL
+                        Log.d("ImageUpload", "Download URL: $imageUrl") // Added logging
+                        onStepChange(recipeStep.copy(imageUrl = uri.toString()))
+                        showImageUploadDialog = false
+                    }
+                }.addOnFailureListener { exception ->
+                    Log.e("Firebase", "Image upload failed: ${exception.message}")
                 }
             }
         }
     }
 
     Column {
-        Text("Editing Step ${currentStep + 1}")
+        Text("Editing Step ${currentStep + 1}", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
@@ -316,51 +303,34 @@ fun StepEditing(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Choose Image for this Step")
+            Text("Choose Receipt Image")
         }
-
         Spacer(modifier = Modifier.height(8.dp))
-
-        // Display the uploaded image
-        if (imageUrl.isNotEmpty()) {
-            Image(
-                painter = rememberAsyncImagePainter(imageUrl),
-                contentDescription = "Step Image",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                contentScale = ContentScale.Crop
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
+        // Make the text field scrollable
         OutlinedTextField(
             value = text,
             onValueChange = { newValue ->
                 text = newValue
-                onStepChange(recipeStep.copy(text = newValue))
             },
             label = { Text("Step Description") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp)
-                .verticalScroll(rememberScrollState())
+            modifier = Modifier.fillMaxWidth()
+                .height(100.dp) // Set a fixed height for the text field
+                .verticalScroll(rememberScrollState()) // Enable vertical scrolling
         )
-
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = info,
             onValueChange = { newValue ->
                 info = newValue
-                onStepChange(recipeStep.copy(info = newValue.toIntOrNull() ?: 0))
             },
             label = { Text("Timer Value (seconds)") },
             modifier = Modifier.fillMaxWidth()
         )
-
         Spacer(modifier = Modifier.height(8.dp))
+    }
+    LaunchedEffect(imageUrl, text, info) {
+        onStepChange(recipeStep.copy(imageUrl = imageUrl, text = text, info = info.toIntOrNull() ?: 0))
     }
 }
 
@@ -413,6 +383,7 @@ fun ImageUploadDialog(
             }
         },
         confirmButton = {
+            // ... your existing code
         }
     )
 }
