@@ -1,6 +1,11 @@
 package com.example.WeCook.Presenter
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Rect
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -11,22 +16,22 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -40,6 +45,10 @@ import com.example.WeCook.Data.MVVM.Recipe
 import com.example.WeCook.Data.MVVM.RecipeViewModel
 import com.example.WeCook.R
 import com.example.WeCook.ui.theme._WeCookTheme
+import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.tasks.await
+import java.io.InputStream
+import java.net.URL
 
 
 class RecipeList : ComponentActivity() {
@@ -50,6 +59,7 @@ class RecipeList : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
+
                 ) {
                     RecipeList()
                 }
@@ -93,12 +103,12 @@ fun RecipeCard(recipe: Recipe, navController: NavController, viewModel: RecipeVi
                     .height(200.dp)
                     .clip(RoundedCornerShape(4.dp))
             ) {
-                RecipeImage(recipe.image)
+                RecipeImage(recipe.image) // Place ImageComposable inside the Box
                 IconButton(
                     onClick = { viewModel.toggleFavorite(recipe.id) },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(8.dp) // Add padding for spacing
+                        .padding(8.dp)
                 ) {
                     Icon(
                         imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
@@ -198,16 +208,46 @@ fun RecipeCard(recipe: Recipe, navController: NavController, viewModel: RecipeVi
         }
     }
 }
+
 @Composable
 fun RecipeImage(imageName: String) {
+    val storage = FirebaseStorage.getInstance()
+    val storageRef = storage.reference.child("receipt_images/$imageName")
+    var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     val context = LocalContext.current
-    val imageResource = context.resources.getIdentifier(imageName, "drawable", context.packageName)
-    Image(
-        painter = painterResource(id = imageResource),
-        contentDescription = null,
-        modifier = Modifier.fillMaxSize(),
-        contentScale = ContentScale.Crop
-    )
+    LaunchedEffect(imageName) {
+        try {
+            val imageUri = storageRef.downloadUrl.await()
+            val imageStream: InputStream = URL(imageUri.toString()).openStream()
+            imageBitmap = BitmapFactory.decodeStream(imageStream)
+        } catch (e: Exception) {
+            Log.e("RecipeImage", "Error loading image: ${e.message}")
+            // Load placeholder image if the main image is not found
+            val placeholderImageId = context.resources.getIdentifier(
+                "placeholder", "drawable", context.packageName
+            )
+            imageBitmap = BitmapFactory.decodeResource(context.resources, placeholderImageId)
+        }
+    }
+
+    imageBitmap?.let {
+        // Crop the image using Canvas
+        val croppedBitmap = Bitmap.createBitmap(400, 300, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(croppedBitmap)
+        val sourceRect = Rect(0, 0, it.width, it.height) // Source rect for the entire image
+        val destRect = Rect(0, 0, 400, 300) // Destination rect for the cropped image
+        canvas.drawBitmap(it, sourceRect, destRect, null)
+
+        // Display the cropped image
+        Image(
+            bitmap = croppedBitmap.asImageBitmap(),
+            contentDescription = null,
+            modifier = Modifier
+                .width(400.dp)
+                .height(300.dp), // Set the desired dimensions here
+            contentScale = ContentScale.Crop
+        )
+    }
 }
 
 @Composable

@@ -112,10 +112,8 @@ fun RecipeDetails(viewModel: RecipeViewModel, recipeId: String) {
                     .offset { IntOffset(offsetX.toInt(), 0) } // Apply offset for swipe animation
                     .clip(RoundedCornerShape(4.dp))
             ) {
-                // StepImage(recipe!!.receiptdetails_image[currentStep])
+                RecipeImage(recipe.receiptdetails_image[currentStep])
                 val imageName = recipe.receiptdetails_image[currentStep]
-                //("Лучше всего, если фотографии нет, будет добавлять фотографию предыдущего изображения.")
-                //("Пока фото не появится.")
                 if (imageName == "Пусто") {
                     Text(
                         text = "Пусто",
@@ -139,7 +137,7 @@ fun RecipeDetails(viewModel: RecipeViewModel, recipeId: String) {
                                         colors = listOf(Color.Transparent, Color.Black),
                                         startY = 0.5f // Adjust gradient start to center
                                     )
-                                ), // Apply gradient from bottom to center
+                                ),
                             contentScale = ContentScale.Crop
                         )
                     } else {

@@ -1,6 +1,12 @@
 package com.example.WeCook.Data.Constructor
+import android.app.Activity
 import android.content.ContentValues.TAG
+import android.content.Intent
+import android.net.Uri
+import android.provider.MediaStore
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -26,6 +32,8 @@ import com.example.WeCook.Data.Firebase.GoogleAuthUiClient
 import com.example.WeCook.Data.MVVM.Recipe
 import com.example.WeCook.R
 import com.google.firebase.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import java.util.UUID
 
 @Composable
 fun AddRecipeScreen(
@@ -37,6 +45,7 @@ fun AddRecipeScreen(
         RecipeCreationState(author = authenticatedUser?.username ?: "")
     ) }
     var showStepsEditing by remember { mutableStateOf(false) }
+
 
     if (!showStepsEditing) {
         // Show Recipe Info Screen
@@ -65,6 +74,16 @@ fun RecipeInfoScreen(
     var tags by remember { mutableStateOf(recipeState.tags.joinToString(", ")) }
     var imageUrl by remember { mutableStateOf(recipeState.imageUrl) }
     var difficulty by remember { mutableStateOf(recipeState.difficulty) }
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data: Intent? = result.data
+            data?.data?.let { uri ->
+                imageUrl = uri.toString()
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -91,12 +110,15 @@ fun RecipeInfoScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
-            value = imageUrl,
-            onValueChange = { imageUrl = it },
-            label = { Text("Image URL") },
+        Button(
+            onClick = {
+                val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                launcher.launch(intent)
+            },
             modifier = Modifier.fillMaxWidth()
-        )
+        ) {
+            Text("Choose Receipt Image")
+        }
         Spacer(modifier = Modifier.height(8.dp))
 
         DifficultySlider(difficulty) { newDifficulty ->
@@ -129,7 +151,6 @@ fun StepsEditingScreen(
 ) {
     var recipeState by remember { mutableStateOf(initialRecipeState) }
     var currentStep by remember { mutableStateOf(0) }
-
     val db = Firebase.firestore
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
@@ -164,7 +185,7 @@ fun StepsEditingScreen(
                 currentStep = currentStep,
                 recipeStep = recipeState.steps[currentStep]
             ) { updatedStep ->
-                recipeState.steps[currentStep] = updatedStep
+                recipeState.steps[currentStep] = updatedStep;
             }
 
             // Navigation buttons
@@ -192,7 +213,6 @@ fun StepsEditingScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = {
-                // Create the Recipe object
                 val newRecipe = Recipe(
                     author = recipeState.author,
                     name = recipeState.name,
@@ -222,26 +242,59 @@ fun StepsEditingScreen(
 fun StepEditing(
     currentStep: Int,
     recipeStep: RecipeStep,
-    onStepChange: (RecipeStep) -> Unit
+    onStepChange: (RecipeStep) -> Unit,
 ) {
-    var imageUrl by remember { mutableStateOf(recipeStep.imageUrl) }
+    //Image
+    var imageUploadProgress by remember { mutableStateOf(0f) }
+    var imageUrl by remember { mutableStateOf(recipeStep.imageUrl) } // Store the download URL
+    var showImageUploadDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val storage = FirebaseStorage.getInstance()
+    val storageReference = storage.reference
+    //Text
     var text by remember { mutableStateOf(recipeStep.text) }
     var info by remember { mutableStateOf(recipeStep.info.toString()) } // Store as String
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data: Intent? = result.data
+            data?.data?.let { uri ->
+                // Upload the selected image to Firebase Storage
+                val imageName = UUID.randomUUID().toString()
+                Log.d("ImageUpload", "Image name: $imageName") // Added logging
+                val imageRef = storageReference.child("receipt_images/${imageName}")
+                val uploadTask = imageRef.putFile(uri)
+                uploadTask.addOnProgressListener { taskSnapshot ->
+                    // ... your existing code
+                }.addOnSuccessListener {
+                    imageRef.downloadUrl.addOnSuccessListener { uri ->
+                        imageUrl = uri.toString() // Store the download URL
+                        Log.d("ImageUpload", "Download URL: $imageUrl") // Added logging
+                        onStepChange(recipeStep.copy(imageUrl = uri.toString()))
+                        showImageUploadDialog = false
+                    }
+                }.addOnFailureListener { exception ->
+                    Log.e("Firebase", "Image upload failed: ${exception.message}")
+                }
+            }
+        }
+    }
 
     Column {
         Text("Editing Step ${currentStep + 1}", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
-            value = imageUrl,
-            onValueChange = { newValue ->
-                imageUrl = newValue
+        Button(
+            onClick = {
+                val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                launcher.launch(intent)
             },
-            label = { Text("Image URL") },
             modifier = Modifier.fillMaxWidth()
-        )
+        ) {
+            Text("Choose Receipt Image")
+        }
         Spacer(modifier = Modifier.height(8.dp))
-
         // Make the text field scrollable
         OutlinedTextField(
             value = text,
@@ -296,3 +349,30 @@ fun DifficultySlider(
     }
 }
 
+@Composable
+fun ImageUploadDialog(
+    imageUrl: String,
+    onImageSelected: (Uri?) -> Unit,
+    onDismiss: () -> Unit,
+    imageUploadProgress: Float
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Upload Receipt Image") },
+        text = {
+            Column {
+                if (imageUrl.isNotEmpty()) {
+                    Text("Current Image URL: $imageUrl")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                if (imageUploadProgress > 0f) {
+                    LinearProgressIndicator(progress = imageUploadProgress / 100f)
+                    Text("Upload Progress: ${imageUploadProgress.toInt()}%")
+                }
+            }
+        },
+        confirmButton = {
+            // ... your existing code
+        }
+    )
+}

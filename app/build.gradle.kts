@@ -51,7 +51,7 @@ android {
 }
 
 dependencies {
-    // Removed older Material dependencies
+    // Removed older Material dependenciesS
     implementation("io.coil-kt:coil-compose:2.4.0") // Or latest version
     implementation("com.google.android.gms:play-services-auth:20.6.0") // Or latest version
     implementation("androidx.core:core-ktx:1.9.0")
@@ -67,8 +67,11 @@ dependencies {
 
     implementation("com.google.firebase:firebase-auth:23.0.0")
     implementation("com.google.firebase:firebase-firestore:25.0.0")
+
     implementation("androidx.test:monitor:1.6.1")
     implementation("androidx.test.ext:junit-ktx:1.1.5")
+    implementation("com.google.firebase:firebase-storage-ktx:21.0.0")
+    implementation("com.google.firebase:firebase-storage:21.0.0")
     kapt("androidx.room:room-compiler:2.6.0")
     implementation ("androidx.navigation:navigation-compose:2.6.0-alpha04")
     //implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
