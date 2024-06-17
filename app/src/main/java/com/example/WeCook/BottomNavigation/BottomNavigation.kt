@@ -37,7 +37,7 @@ fun BottomNavigation(navController: NavController) {
                     Icon(
                         painter = painterResource(id = item.iconId),
                         contentDescription = "Icon",
-                        tint = if (currentRoute == item.route) Color.Blue else Color.Gray
+                        tint = if (currentRoute == item.route) Color(0xFF26962C) else Color.Gray
                     )
                 },
                 label = {
@@ -46,7 +46,7 @@ fun BottomNavigation(navController: NavController) {
                         text = item.title,
                         fontSize = 9.sp,
                         style = TextStyle(
-                            color = if (currentRoute == item.route) Color.Blue else Color.Gray
+                            color = if (currentRoute == item.route) Color(0xFF26962C) else Color.Gray
                         )
                     )
                 }

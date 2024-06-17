@@ -72,7 +72,6 @@ class RecipeList : ComponentActivity() {
 @Composable
 fun RecipeList(navController: NavController, viewModel: RecipeViewModel = viewModel()) {
     val firestoreRecipes by viewModel.firestoreRecipes.collectAsState()
-
     LazyColumn {
         items(firestoreRecipes) { recipe ->
             RecipeCard(recipe, navController, viewModel)
@@ -89,6 +88,7 @@ fun RecipeCard(recipe: Recipe, navController: NavController, viewModel: RecipeVi
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
+            .background(Color.White)
             .clickable {
                 navController.navigate("RecipeDetails/${recipe.id}")
             }
@@ -105,7 +105,7 @@ fun RecipeCard(recipe: Recipe, navController: NavController, viewModel: RecipeVi
                     .clip(RoundedCornerShape(4.dp))
             ) {
                 Image(
-                    painter = rememberAsyncImagePainter(recipe.image),
+                    painter = rememberAsyncImagePainter(model = recipe.image, placeholder = painterResource(id = R.drawable.placeholder)),
                     contentDescription = "Recipe Image",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
@@ -222,12 +222,12 @@ fun TagItem(tag: String) {
         modifier = Modifier
             .padding(start = 4.dp)
             .background(
-                color = Color.LightGray,
+                color = Color(0xFF509654),
                 shape = RoundedCornerShape(8.dp) // Rounded corners
             )
             .border(
                 width = 1.dp,
-                color = Color.Gray,
+                color = Color(0xFF4D754F),
                 shape = RoundedCornerShape(8.dp) // Rounded corners
             )
             .padding(8.dp) // Padding inside the tag
