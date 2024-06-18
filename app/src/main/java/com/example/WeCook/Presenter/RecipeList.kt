@@ -104,13 +104,28 @@ fun RecipeCard(recipe: Recipe, navController: NavController, viewModel: RecipeVi
                     .height(200.dp)
                     .clip(RoundedCornerShape(4.dp))
             ) {
-                Image(
-                    painter = rememberAsyncImagePainter(model = recipe.image, placeholder = painterResource(id = R.drawable.placeholder)),
-                    contentDescription = "Recipe Image",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-
+                if (recipe.image == "placeholder")
+                {
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            model = R.drawable.placeholder
+                        ),
+                        contentDescription = "Recipe Image",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+                else {
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            model = recipe.image,
+                            placeholder = painterResource(id = R.drawable.placeholder)
+                        ),
+                        contentDescription = "Recipe Image",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
                 IconButton(
                     onClick = { viewModel.toggleFavorite(recipe.id) },
                     modifier = Modifier

@@ -11,9 +11,9 @@ data class RecipeCreationState(
 
 data class RecipeStep(
     val stepNumber: Int,
-    var imageUrl: String = "",
+    var imageUrl: String = "", // Add imageUrl here
     var text: String = "",
-    var info: Int = 0 // Assuming this is a timer value in seconds
+    var info: Int = 0
 )
 
 data class Recipe(

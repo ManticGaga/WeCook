@@ -1,4 +1,5 @@
 package com.example.WeCook.Data.Constructor
+
 import android.app.Activity
 import android.content.ContentValues.TAG
 import android.content.Context
@@ -7,6 +8,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -14,6 +16,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -31,6 +34,7 @@ import androidx.compose.material3.OutlinedTextField // Use Material3 OutlinedTex
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.WeCook.Data.Constructor.RecipeCreationState
@@ -45,7 +49,7 @@ import java.util.UUID
 
 @Composable
 fun AddRecipeScreen(
-    navController: NavController, // Add NavController parameter
+    navController: NavController,
     googleAuthUiClient: GoogleAuthUiClient
 ) {
     val authenticatedUser = googleAuthUiClient.getSignedInUser()
@@ -53,19 +57,60 @@ fun AddRecipeScreen(
         RecipeCreationState(author = authenticatedUser?.username ?: "")
     ) }
     var showStepsEditing by remember { mutableStateOf(false) }
+    var showExitConfirmationDialog by remember { mutableStateOf(false) }
+    var showErrorDialog by remember { mutableStateOf(false) } // Add this line
 
+    BackHandler(enabled = showStepsEditing) {
+        showExitConfirmationDialog = true
+    }
+
+    if (showExitConfirmationDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitConfirmationDialog = false },
+            title = { Text("Exit Recipe Creation") },
+            text = { Text("Are you sure you want to exit? All unsaved changes will be lost.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showExitConfirmationDialog = false
+                    navController.popBackStack() // Go back to previous screen
+                }) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExitConfirmationDialog = false }) {
+                    Text("No")
+                }
+            }
+        )
+    }
+
+    if (showErrorDialog) {
+        AlertDialog(
+            onDismissRequest = { showErrorDialog = false },
+            title = { Text("Error") },
+            text = { Text("Please fill in all the required fields.") },
+            confirmButton = {
+                TextButton(onClick = { showErrorDialog = false }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
 
     if (!showStepsEditing) {
-        // Show Recipe Info Screen
         RecipeInfoScreen(
             recipeState = recipeState,
             onNextClick = { updatedState ->
-                recipeState = updatedState
-                showStepsEditing = true
+                if (updatedState.name.isBlank() || updatedState.tags.isEmpty() || updatedState.imageUrl == "placeholder") {
+                    showErrorDialog = true // Show error dialog if fields are empty
+                } else {
+                    recipeState = updatedState
+                    showStepsEditing = true
+                }
             }
         )
     } else {
-        // Show Steps Editing Screen
         StepsEditingScreen(
             navController = navController,
             initialRecipeState = recipeState
@@ -155,18 +200,16 @@ fun RecipeInfoScreen(
         }
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (imageUrl != "placeholder") {
-            Image(
-                painter = rememberAsyncImagePainter(model = imageUrl),
-                contentDescription = "Receipt Image",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(4.dp)),
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-        }
+        Image(
+            painter = rememberAsyncImagePainter(model = imageUrl),
+            contentDescription = "Receipt Image",
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .clip(RoundedCornerShape(4.dp)),
+            contentScale = ContentScale.Crop
+        )
+        Spacer(modifier = Modifier.height(8.dp))
 
         Button(
             onClick = {
@@ -187,7 +230,6 @@ fun RecipeInfoScreen(
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StepsEditingScreen(
@@ -199,6 +241,7 @@ fun StepsEditingScreen(
     val db = Firebase.firestore
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    var showErrorDialog by remember { mutableStateOf(false) } // Add this line
 
     if (recipeState.steps.isEmpty()) {
         recipeState.steps.add(RecipeStep(1, "", "", 0))
@@ -227,26 +270,14 @@ fun StepsEditingScreen(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (recipeState.imageUrl.isNotEmpty()) {
-                Image(
-                    painter = rememberAsyncImagePainter(model = recipeState.imageUrl),
-                    contentDescription = "Receipt Image",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .clip(RoundedCornerShape(4.dp)),
-                    contentScale = ContentScale.Crop
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
             // Current step editing
             StepEditing(
                 currentStep = currentStep,
-                recipeStep = recipeState.steps[currentStep], // Pass the correct step
+                recipeStep = recipeState.steps[currentStep], // Pass correct step
                 recipeState = recipeState
             ) { updatedStep ->
                 // Update the step in the list
-                recipeState.steps[currentStep] = updatedStep
+                recipeState.steps[currentStep] = updatedStep.copy(imageUrl = updatedStep.imageUrl)
             }
 
             // Navigation buttons
@@ -273,27 +304,43 @@ fun StepsEditingScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = {
-                val newRecipe = Recipe(
-                    author = recipeState.author,
-                    name = recipeState.name,
-                    difficulty = recipeState.difficulty,
-                    tags = recipeState.tags,
-                    image = recipeState.imageUrl,
-                    stepstotal = recipeState.steps.size,
-                    receiptdetails_image = recipeState.steps.map { it.imageUrl },
-                    receiptdetails_text = recipeState.steps.map { it.text },
-                    receiptdetails_info = recipeState.steps.map { it.info }
-                )
+                if (recipeState.steps.any { it.text.isBlank() || it.imageUrl == "placeholder" || it.info == 0 }) {
+                    showErrorDialog = true // Show error dialog if any step is missing fields
+                } else {
+                    val newRecipe = Recipe(
+                        author = recipeState.author,
+                        name = recipeState.name,
+                        difficulty = recipeState.difficulty,
+                        tags = recipeState.tags,
+                        image = recipeState.imageUrl,
+                        stepstotal = recipeState.steps.size,
+                        receiptdetails_image = recipeState.steps.map { it.imageUrl },
+                        receiptdetails_text = recipeState.steps.map { it.text },
+                        receiptdetails_info = recipeState.steps.map { it.info }
+                    )
 
-                // Save to Firestore
-                db.collection("recipes")
-                    .add(newRecipe)
-                    .addOnSuccessListener {
-                        navController.navigate("RecipeList")
-                    }
+                    // Save to Firestore
+                    db.collection("recipes")
+                        .add(newRecipe)
+                        .addOnSuccessListener {
+                            navController.navigate("RecipeList")
+                        }
+                }
             }) {
                 Text("Finish Recipe Editing")
             }
+        }
+        if (showErrorDialog) {
+            AlertDialog(
+                onDismissRequest = { showErrorDialog = false },
+                title = { Text("Error") },
+                text = { Text("Please fill in all the required fields for each step.") },
+                confirmButton = {
+                    TextButton(onClick = { showErrorDialog = false }) {
+                        Text("OK")
+                    }
+                }
+            )
         }
     }
 }
@@ -306,7 +353,7 @@ fun StepEditing(
     onStepChange: (RecipeStep) -> Unit
 ) {
     var imageUploadProgress by remember { mutableStateOf(0f) }
-    var imageUrl by remember { mutableStateOf(recipeStep.imageUrl) }
+    var imageUrl by remember { mutableStateOf(recipeStep.imageUrl) } // Use recipeStep.imageUrl here
     var showImageUploadDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val storage = FirebaseStorage.getInstance()
@@ -347,6 +394,19 @@ fun StepEditing(
         Text("Editing Step ${currentStep + 1}", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(8.dp))
 
+        if (imageUrl != "placeholder") {
+            Image(
+                painter = rememberAsyncImagePainter(model = imageUrl), // Display the correct step image
+                contentDescription = "Receipt Image",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(4.dp)),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
         Button(
             onClick = {
                 val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
@@ -383,11 +443,13 @@ fun StepEditing(
                 info = newValue
             },
             label = { Text("Timer Value (seconds)") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number) // Set keyboard to number
         )
         Spacer(modifier = Modifier.height(8.dp))
     }
     LaunchedEffect(imageUrl, text, info) {
+        // Update the imageUrl in the recipeStep
         onStepChange(recipeStep.copy(imageUrl = imageUrl, text = text, info = info.toIntOrNull() ?: 0))
     }
 }

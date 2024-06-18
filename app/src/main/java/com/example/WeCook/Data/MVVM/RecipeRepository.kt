@@ -4,7 +4,6 @@ import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-// RecipeRepository.kt
 class RecipeRepository(private val recipeDao: RecipeDao) {
     val allTasks: Flow<List<RecipeEntity>> = recipeDao.getAllFavorite()
 

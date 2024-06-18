@@ -8,12 +8,14 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.WeCook.Data.Firebase.firestoreRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
@@ -33,7 +35,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         fetchFirestoreRecipes()
     }
 
-    private fun fetchFirestoreRecipes() {
+    fun fetchFirestoreRecipes(startAfterDocument: DocumentSnapshot? = null) {
         viewModelScope.launch {
             try {
                 val recipes = FirebaseFirestore.getInstance()
@@ -50,6 +52,34 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             } catch (e: Exception) {
                 Log.e(TAG, "Error fetching recipes", e)
             }
+        }
+    }
+    suspend fun getNextBatchOfRecipes(lastVisibleDocument: DocumentSnapshot? = null): List<Recipe> {
+        val query = if (lastVisibleDocument == null) {
+            FirebaseFirestore.getInstance()
+                .collection("recipes")
+                .limit(10)
+        } else {
+            FirebaseFirestore.getInstance()
+                .collection("recipes")
+                .startAfter(lastVisibleDocument)
+                .limit(10)
+        }
+
+        return try {
+            val recipes = query
+                .get()
+                .await()
+                .documents
+                .mapNotNull { document ->
+                    document.toObject(Recipe::class.java)?.also { recipe ->
+                        recipe.id = document.id
+                    }
+                }
+            recipes
+        } catch (e: Exception) {
+            Log.e(TAG, "Error fetching recipes", e)
+            emptyList()
         }
     }
 
