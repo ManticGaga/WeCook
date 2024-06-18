@@ -72,7 +72,7 @@ fun FavoritesScreen(navController: NavController, viewModel: RecipeViewModel = v
     val favoriteRecipes by viewModel.favoriteRecipes.collectAsState(initial = emptyList())
 
     if (favoriteRecipes.isEmpty()) {
-        Text("There are no favorite recipes. Yet :)")
+        Text("Нет избранных рецептов. Пока :)")
     } else {
         LazyColumn {
             items(favoriteRecipes) { favoriteRecipe ->
@@ -117,7 +117,7 @@ fun RecipeCardFav(recipe: Recipe, navController: NavController, viewModel: Recip
                         painter = rememberAsyncImagePainter(
                             model = R.drawable.placeholder
                         ),
-                        contentDescription = "Recipe Image",
+                        contentDescription = "Изображение рецепта",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
@@ -128,7 +128,7 @@ fun RecipeCardFav(recipe: Recipe, navController: NavController, viewModel: Recip
                             model = recipe.image,
                             placeholder = painterResource(id = R.drawable.placeholder)
                         ),
-                        contentDescription = "Recipe Image",
+                        contentDescription = "Изображение рецепта",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
@@ -141,7 +141,7 @@ fun RecipeCardFav(recipe: Recipe, navController: NavController, viewModel: Recip
                 ) {
                     Icon(
                         imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                        contentDescription = "Favorite",
+                        contentDescription = "Избранное",
                         tint = if (isFavorite) Color.Red else Color.Gray
                     )
                 }
@@ -222,7 +222,7 @@ fun RecipeCardFav(recipe: Recipe, navController: NavController, viewModel: Recip
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Тэги:",
+                    text = "Метки:",
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp,
                     fontFamily = FontFamily.Monospace

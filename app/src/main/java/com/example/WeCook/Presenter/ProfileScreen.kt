@@ -1,6 +1,11 @@
 package com.example.WeCook.Presenter
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
@@ -28,34 +33,37 @@ fun ProfileScreen(
         color = Color.White, // Set your desired background color here
         modifier = Modifier.fillMaxSize()
     ) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        if(userData?.profilePictureUrl != null) {
-            AsyncImage(
-                model = userData.profilePictureUrl,
-                contentDescription = "Profile picture",
-                modifier = Modifier
-                    .size(150.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-        if(userData?.username != null) {
-            Text(
-                text = userData.username,
-                textAlign = TextAlign.Center,
-                fontSize = 36.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-        Button(onClick = onSignOut) {
-            Text(text = "Sign out")
-        }
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (userData?.profilePictureUrl != null) {
+                AsyncImage(
+                    model = userData.profilePictureUrl,
+                    contentDescription = "Profile picture",
+                    modifier = Modifier
+                        .size(150.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            if (userData?.username != null) {
+                Text(
+                    text = userData.username,
+                    textAlign = TextAlign.Center,
+                    fontSize = 36.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            Button(onClick = onSignOut) {
+                Text(text = "Выйти")
+            }
+            Button(onClick = onClose) {
+                Text(text = "Закрыть")
+            }
         }
     }
 }

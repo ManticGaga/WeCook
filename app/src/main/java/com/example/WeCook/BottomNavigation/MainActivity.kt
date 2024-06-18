@@ -20,6 +20,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.WeCook.Data.Firebase.GoogleAuthUiClient
 import com.example.WeCook.Data.Firebase.SignIn
@@ -56,7 +57,7 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun ProfileButton(userData: UserData?, onClick: () -> Unit) {
+fun ProfileButton(userData: UserData?, navController: NavHostController, onClick: () -> Unit) {
     val configuration = LocalConfiguration.current // Get screen configuration
     val screenWidth = configuration.screenWidthDp.dp // Get screen width in dp
 

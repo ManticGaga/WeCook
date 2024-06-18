@@ -10,8 +10,9 @@ import androidx.navigation.navArgument
 import com.example.WeCook.Data.Constructor.AddRecipeScreen
 import com.example.WeCook.Data.Firebase.GoogleAuthUiClient
 import com.example.WeCook.Presenter.FavoritesScreen
-import com.example.WeCook.Presenter.RecipeList
+import com.example.WeCook.Presenter.ProfileScreen
 import com.example.WeCook.Presenter.RecipeDetails
+import com.example.WeCook.Presenter.RecipeList
 
 @Composable
 fun NavGraph(navHostController: NavHostController, googleAuthUiClient: GoogleAuthUiClient) {
@@ -31,6 +32,13 @@ fun NavGraph(navHostController: NavHostController, googleAuthUiClient: GoogleAut
         ) { backStackEntry ->
             val recipeId = backStackEntry.arguments?.getString("recipeId") ?: "" // Get recipeId
             RecipeDetails(viewModel = viewModel(), recipeId = recipeId) // Pass recipeId
+        }
+        composable("Profile") {
+            ProfileScreen(
+                userData = googleAuthUiClient.getSignedInUser(),
+                onSignOut = { /* Handle sign out here */ },
+                onClose = { navHostController.popBackStack() } // Close the profile screen
+            )
         }
     }
 }

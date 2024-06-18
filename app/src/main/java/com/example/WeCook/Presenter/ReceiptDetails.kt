@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -106,7 +109,7 @@ fun RecipeDetails(viewModel: RecipeViewModel, recipeId: String) {
                     contentScale = ContentScale.Crop
                 )
                 Text(
-                    text = "Step ${currentStep + 1} / ${recipe.stepstotal}",
+                    text = "Шаг ${currentStep + 1} из ${recipe.stepstotal}",
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .padding(16.dp)
@@ -126,7 +129,6 @@ fun RecipeDetails(viewModel: RecipeViewModel, recipeId: String) {
                         .align(Alignment.Start)
                 )
             }
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -145,10 +147,50 @@ fun RecipeDetails(viewModel: RecipeViewModel, recipeId: String) {
                         text = recipe.receiptdetails_text[currentStep],
                         modifier = Modifier.padding(16.dp)
                     )
+
                 }
+            }
+
+            if (currentStep == recipe.stepstotal - 1) {
+                Button(
+                    onClick = { showRatingDialog = true },
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text("Оценить этот рецепт")
+                }
+            }
+            if (showRatingDialog) {
+                AlertDialog(
+                    onDismissRequest = { showRatingDialog = false },
+                    title = { Text("Оценить рецепт") },
+                    text = {
+                        Column {
+                            Slider(
+                                value = userRating.toFloat(),
+                                onValueChange = { userRating = it.toInt() },
+                                valueRange = 1f..10f, // Rating from 1 to 10
+                                steps = 9,
+                            )
+                            Text("Ваша оценка: $userRating")
+                        }
+                    },
+                    confirmButton = {
+                        Button(onClick = {
+                            viewModel.updateRating(recipeId, userRating)
+                            showRatingDialog = false
+                        }) {
+                            Text("Отправить оценку")
+                        }
+                    },
+                    dismissButton = {
+                        Button(onClick = { showRatingDialog = false }) {
+                            Text("Отмена")
+                        }
+                    }
+                )
             }
         }
     } else {
-        Text("Recipe not found!")
+        Text("Рецепт не найден!")
     }
 }

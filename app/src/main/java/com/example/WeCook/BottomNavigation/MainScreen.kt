@@ -3,21 +3,37 @@ package com.example.WeCook.BottomNavigation
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.example.WeCook.Data.Firebase.GoogleAuthUiClient
-import com.example.WeCook.Presenter.ProfileScreen
 import com.example.WeCook.R
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -55,7 +71,8 @@ fun MainScreen(googleAuthUiClient: GoogleAuthUiClient, onSignOut: () -> Unit) {
                         ) {
                             ProfileButton(
                                 userData = googleAuthUiClient.getSignedInUser(),
-                                onClick = { showProfile.value = true }
+                                navController = navController, // Pass the NavController
+                                onClick = { navController.navigate("Profile") } // Navigate to Profile
                             )
                             Spacer(modifier = Modifier.width(5.dp))
                         }
@@ -71,19 +88,7 @@ fun MainScreen(googleAuthUiClient: GoogleAuthUiClient, onSignOut: () -> Unit) {
                 navHostController = navController,
                 googleAuthUiClient = googleAuthUiClient
             )
-            if (showProfile.value) {
-                ProfileScreen(
-                    userData = googleAuthUiClient.getSignedInUser(),
-                    onSignOut = {
-                        coroutineScope.launch {
-                            googleAuthUiClient.signOut()
-                            showProfile.value = false
-                            onSignOut() // Call onSignOut from MainActivity
-                        }
-                    },
-                    onClose = { showProfile.value = false }
-                )
-            }
+
             if (showSupportDialog.value) {
                 SupportDialog(
                     onDismiss = { showSupportDialog.value = false },
@@ -106,7 +111,6 @@ fun MainScreen(googleAuthUiClient: GoogleAuthUiClient, onSignOut: () -> Unit) {
         }
     }
 }
-
 @Composable
 fun SupportButton(onClick: () -> Unit) {
     val triangleIcon = painterResource(id = R.drawable.baseline_handyman_24)

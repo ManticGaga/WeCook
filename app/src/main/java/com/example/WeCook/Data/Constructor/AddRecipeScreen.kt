@@ -84,19 +84,19 @@ fun AddRecipeScreen(
     if (showExitConfirmationDialog) {
         AlertDialog(
             onDismissRequest = { showExitConfirmationDialog = false },
-            title = { Text("Exit Recipe Creation") },
-            text = { Text("Are you sure you want to exit? All unsaved changes will be lost.") },
+            title = { Text("Выход из создания рецепта") },
+            text = { Text("Вы уверены, что хотите выйти? Все несохраненные изменения будут потеряны.") },
             confirmButton = {
                 TextButton(onClick = {
                     showExitConfirmationDialog = false
                     navController.popBackStack() // Go back to previous screen
                 }) {
-                    Text("Yes")
+                    Text("Да")
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showExitConfirmationDialog = false }) {
-                    Text("No")
+                    Text("Нет")
                 }
             }
         )
@@ -105,8 +105,8 @@ fun AddRecipeScreen(
     if (showErrorDialog) {
         AlertDialog(
             onDismissRequest = { showErrorDialog = false },
-            title = { Text("Error") },
-            text = { Text("Please fill in all the required fields.") },
+            title = { Text("Ошибка") },
+            text = { Text("Пожалуйста, заполните все обязательные поля.") },
             confirmButton = {
                 TextButton(onClick = { showErrorDialog = false }) {
                     Text("OK")
@@ -182,7 +182,7 @@ fun RecipeInfoScreen(
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text("Recipe Name") },
+            label = { Text("Название рецепта") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -191,7 +191,7 @@ fun RecipeInfoScreen(
         OutlinedTextField(
             value = tags,
             onValueChange = { tags = it },
-            label = { Text("Tags (comma-separated)") },
+            label = { Text("Тэги (через запятую)") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -213,13 +213,13 @@ fun RecipeInfoScreen(
                 )
             }
         ) {
-            Text("Next: Add Steps")
+            Text("Далее: Добавить шаги")
         }
         Spacer(modifier = Modifier.height(8.dp))
 
         Image(
             painter = rememberAsyncImagePainter(model = imageUrl),
-            contentDescription = "Receipt Image",
+            contentDescription = "Изображение рецепта",
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
@@ -235,7 +235,7 @@ fun RecipeInfoScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(if (imageUrl == "placeholder") "Choose Receipt Image" else "Replace Image")
+            Text(if (imageUrl == "placeholder") "Выбрать изображение рецепта" else "Заменить изображение")
         }
 
         if (showImageUploadDialog) {
@@ -310,7 +310,7 @@ fun StepsEditingScreen(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.baseline_keyboard_arrow_left_24),
-                        contentDescription = "Previous Step"
+                        contentDescription = "Предыдущий шаг"
                     )
                 }
                 Button(onClick = {
@@ -336,7 +336,7 @@ fun StepsEditingScreen(
                             }
                     }
                 }) {
-                    Text("Finish Recipe Editing")
+                    Text("Завершить редактирование рецепта")
                 }
                 IconButton(
                     onClick = { nextStep() },
@@ -344,7 +344,7 @@ fun StepsEditingScreen(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.baseline_keyboard_arrow_right_24), // Your right arrow icon
-                        contentDescription = "Next Step"
+                        contentDescription = "Следующий шаг"
                     )
                 }
             }
@@ -352,8 +352,8 @@ fun StepsEditingScreen(
         if (showErrorDialog) {
             AlertDialog(
                 onDismissRequest = { showErrorDialog = false },
-                title = { Text("Error") },
-                text = { Text("Please fill in all the required fields for each step.") },
+                title = { Text("Ошибка") },
+                text = { Text("Пожалуйста, заполните все обязательные поля для каждого шага.") },
                 confirmButton = {
                     TextButton(onClick = { showErrorDialog = false }) {
                         Text("OK")
@@ -411,14 +411,14 @@ fun StepEditing(
 
     Column {
         Row{
-            Text("Editing Step ${currentStep + 1}", style = MaterialTheme.typography.headlineSmall)
+            Text("Редактирование шага ${currentStep + 1}", style = MaterialTheme.typography.headlineSmall)
         }
         Spacer(modifier = Modifier.height(8.dp))
 
         if (imageUrl != "placeholder") {
             Image(
                 painter = rememberAsyncImagePainter(model = imageUrl), // Display the correct step image
-                contentDescription = "Receipt Image",
+                contentDescription = "Изображение рецепта",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
@@ -435,7 +435,7 @@ fun StepEditing(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Choose Receipt Image")
+            Text("Выбрать изображение рецепта")
         }
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -445,7 +445,7 @@ fun StepEditing(
             onValueChange = { newValue ->
                 text = newValue
             },
-            label = { Text("Step Description") },
+            label = { Text("Описание шага") },
             modifier = Modifier.fillMaxWidth()
                 .height(100.dp) // Set a fixed height for the text field
                 .verticalScroll(rememberScrollState()) // Enable vertical scrolling
@@ -463,7 +463,7 @@ fun StepEditing(
             onValueChange = { newValue ->
                 info = newValue
             },
-            label = { Text("Timer Value (seconds)") },
+            label = { Text("Время таймера (секунды)") },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number) // Set keyboard to number
         )
@@ -508,16 +508,16 @@ fun ImageUploadDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Uploading Image") },
+        title = { Text("Загрузка изображения") },
         text = {
             Column {
                 LinearProgressIndicator(progress = imageUploadProgress / 100f)
-                Text("Upload Progress: ${String.format("%.1f", imageUploadProgress)}%")
+                Text("Прогресс загрузки: ${String.format("%.1f", imageUploadProgress)}%")
             }
         },
         confirmButton = {
             Button(onClick = onDismiss) {
-                Text("Close")
+                Text("Закрыть")
             }
         }
     )
