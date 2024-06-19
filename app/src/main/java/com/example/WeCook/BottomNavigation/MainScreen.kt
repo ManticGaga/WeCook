@@ -33,6 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.example.WeCook.Data.Firebase.GoogleAuthUiClient
+import com.example.WeCook.Presenter.ProfileScreen
 import com.example.WeCook.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,9 +87,18 @@ fun MainScreen(googleAuthUiClient: GoogleAuthUiClient, onSignOut: () -> Unit) {
         Column(modifier = Modifier.padding(innerPadding)) {
             NavGraph(
                 navHostController = navController,
-                googleAuthUiClient = googleAuthUiClient
+                googleAuthUiClient = googleAuthUiClient,
+                onSignOut = onSignOut
             )
-
+            if (showProfile.value) {
+                ProfileScreen(
+                    userData = googleAuthUiClient.getSignedInUser(),
+                    onSignOut = {
+                        onSignOut()
+                    },
+                    onClose = { showProfile.value = false }
+                )
+            }
             if (showSupportDialog.value) {
                 SupportDialog(
                     onDismiss = { showSupportDialog.value = false },
@@ -131,7 +141,6 @@ fun SupportButton(onClick: () -> Unit) {
         }
     )
 }
-
 
 @Composable
 fun SupportDialog(onDismiss: () -> Unit, onSend: () -> Unit) {

@@ -336,7 +336,7 @@ fun StepsEditingScreen(
                             }
                     }
                 }) {
-                    Text("Завершить редактирование рецепта")
+                    Text("Завершить рецепт")
                 }
                 IconButton(
                     onClick = { nextStep() },

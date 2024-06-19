@@ -15,7 +15,7 @@ import com.example.WeCook.Presenter.RecipeDetails
 import com.example.WeCook.Presenter.RecipeList
 
 @Composable
-fun NavGraph(navHostController: NavHostController, googleAuthUiClient: GoogleAuthUiClient) {
+fun NavGraph(navHostController: NavHostController, googleAuthUiClient: GoogleAuthUiClient, onSignOut: () -> Unit) {
     NavHost(navController = navHostController, startDestination = "RecipeList") {
         composable("RecipeList") {
             RecipeList(navHostController)
@@ -36,7 +36,7 @@ fun NavGraph(navHostController: NavHostController, googleAuthUiClient: GoogleAut
         composable("Profile") {
             ProfileScreen(
                 userData = googleAuthUiClient.getSignedInUser(),
-                onSignOut = { /* Handle sign out here */ },
+                onSignOut = onSignOut,
                 onClose = { navHostController.popBackStack() } // Close the profile screen
             )
         }

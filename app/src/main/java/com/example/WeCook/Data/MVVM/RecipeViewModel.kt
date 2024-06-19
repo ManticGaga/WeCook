@@ -5,17 +5,16 @@ import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.firestore.FirebaseFirestore
 import com.example.WeCook.Data.Firebase.firestoreRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
@@ -151,4 +150,15 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
     val favoriteRecipes: Flow<List<RecipeEntity>> = repository.getFavoriteRecipes()
+
+    fun deleteRecipe(recipeId: String) {
+        viewModelScope.launch {
+            try {
+                FirebaseFirestore.getInstance().collection("recipes").document(recipeId).delete().await()
+                _firestoreRecipes.value = _firestoreRecipes.value.filter { it.id != recipeId }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error deleting recipe: ${e.message}")
+            }
+        }
+    }
 }

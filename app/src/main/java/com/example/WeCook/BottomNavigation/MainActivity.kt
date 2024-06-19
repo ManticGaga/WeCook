@@ -43,12 +43,12 @@ class MainActivity : ComponentActivity() {
                         googleAuthUiClient = googleAuthUiClient,
                         onSignOut = {
                             startActivity(Intent(this, SignIn::class.java))
-                            finish() // Close MainActivity
+                            finish()
                         }
                     )
                 } else {
                     startActivity(Intent(this, SignIn::class.java))
-                    finish() // Close MainActivity if not signed in
+                    finish()
                 }
             }
         }

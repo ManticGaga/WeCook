@@ -104,7 +104,7 @@ class SignIn : ComponentActivity() {
                                         navController.popBackStack()
                                     }
                                 },
-                                onClose = { } // Pass an empty lambda function here
+                                onClose = { }
                             )
                         }
                     }
