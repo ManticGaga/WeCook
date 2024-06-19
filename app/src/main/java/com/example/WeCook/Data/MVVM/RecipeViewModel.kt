@@ -25,6 +25,8 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     var firestoreRecipes = _firestoreRecipes.asStateFlow()
     private lateinit var firestoreRepository: firestoreRepository
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery.asStateFlow()
 
     init {
         val taskDao = RecipeDatabase.getDatabase(application).recipeDao()
@@ -33,6 +35,17 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         allTasks = repository.allTasks
         fetchFirestoreRecipes()
     }
+    private val _searchRecipes = MutableStateFlow<List<Recipe>>(emptyList())
+    val searchRecipes = _searchRecipes.asStateFlow()
+//    private val searchDelayMillis = 99999999999L
+
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
+        viewModelScope.launch {
+
+        }
+    }
+
 
     fun fetchFirestoreRecipes(startAfterDocument: DocumentSnapshot? = null) {
         viewModelScope.launch {
@@ -51,34 +64,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             } catch (e: Exception) {
                 Log.e(TAG, "Error fetching recipes", e)
             }
-        }
-    }
-    suspend fun getNextBatchOfRecipes(lastVisibleDocument: DocumentSnapshot? = null): List<Recipe> {
-        val query = if (lastVisibleDocument == null) {
-            FirebaseFirestore.getInstance()
-                .collection("recipes")
-                .limit(10)
-        } else {
-            FirebaseFirestore.getInstance()
-                .collection("recipes")
-                .startAfter(lastVisibleDocument)
-                .limit(10)
-        }
-
-        return try {
-            val recipes = query
-                .get()
-                .await()
-                .documents
-                .mapNotNull { document ->
-                    document.toObject(Recipe::class.java)?.also { recipe ->
-                        recipe.id = document.id
-                    }
-                }
-            recipes
-        } catch (e: Exception) {
-            Log.e(TAG, "Error fetching recipes", e)
-            emptyList()
         }
     }
 

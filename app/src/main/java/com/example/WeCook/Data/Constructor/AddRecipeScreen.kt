@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -51,7 +50,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
@@ -457,16 +455,6 @@ fun StepEditing(
                 onDismiss = { showImageUploadDialog = false }
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
-            value = info,
-            onValueChange = { newValue ->
-                info = newValue
-            },
-            label = { Text("Время таймера (секунды)") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number) // Set keyboard to number
-        )
         Spacer(modifier = Modifier.height(8.dp))
     }
     LaunchedEffect(imageUrl, text, info) {

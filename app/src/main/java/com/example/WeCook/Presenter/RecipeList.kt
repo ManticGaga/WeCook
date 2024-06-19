@@ -1,6 +1,7 @@
 package com.example.WeCook.Presenter
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -22,16 +23,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -76,9 +80,30 @@ class RecipeList : ComponentActivity() {
 fun RecipeList(navController: NavController, viewModel: RecipeViewModel = viewModel()) {
     val firestoreRecipes by viewModel.firestoreRecipes.collectAsState()
     val currentUser = FirebaseAuth.getInstance().currentUser
-    LazyColumn {
-        items(firestoreRecipes) { recipe ->
-            RecipeCard(recipe, navController, viewModel, currentUser?.displayName ?: "")
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    Log.d("ПоискRecipelist: ",searchQuery.toString())
+    val filteredRecipes = remember(searchQuery, firestoreRecipes) { // Теперь запоминаем и searchQuery и firestoreRecipes
+        if (searchQuery.isBlank()) {
+            firestoreRecipes
+        } else {
+            firestoreRecipes.filter { it.name.lowercase().contains(searchQuery.lowercase()) }
+        }
+    }
+
+    Column {
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { viewModel.updateSearchQuery(it) },
+            label = { Text("Поиск рецептов") },
+            leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Search") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        )
+        LazyColumn {
+            items(filteredRecipes) { recipe ->
+                RecipeCard(recipe, navController, viewModel, currentUser?.displayName ?: "")
+            }
         }
     }
 }
